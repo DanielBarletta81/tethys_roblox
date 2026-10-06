@@ -17,6 +17,8 @@ Profile the complete slice for instance counts, frame time, server work and stre
 
 ## Tool publication and later features
 
+Tethys Terrain 0.1 is implemented as a modular local Studio plugin. Finish the installed dock/Undo acceptance check, then author one useful river valley before considering hydraulic erosion, stitching or a node editor. See its [guide and evidence](tethys-terrain.md). Creator Store publication remains a separate decision.
+
 Nature Scatter v1 is a candidate for a separately licensed standalone tool, after clarifying source-asset dependencies and producing a clean demonstration fixture. A DevForum release would be a separate publication task with documentation and limitations.
 
 Scatter v2 clustering, exclusion zones, biome presets and density falloff follow the playable cave slice. Adventures has distinct prepared UI symbols; its separate place and gameplay bindings are not installed by this repository.

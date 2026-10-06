@@ -5,6 +5,7 @@
 !/README.md
 !/AGENTS.md
 !/src/
+!/plugins/
 !/tests/
 !/tools/
 !/docs/
@@ -19,6 +20,7 @@
 !/tools/ci_checks.py
 !/tools/install_luau.py
 !/tools/luau-release.json
+!/tools/package_terrain_plugin.py
 
 # Secrets, local tooling, generated Studio files and temporary test adapters.
 **/.DS_Store

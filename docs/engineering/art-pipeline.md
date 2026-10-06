@@ -2,6 +2,8 @@
 
 Keep environment authoring reproducible on the project's Mac workflow. Native Studio terrain and Blender are the baseline; a paid Blender terrain add-on can remain optional.
 
+[Tethys Terrain](tethys-terrain.md) adds a local seeded authoring tool for small native Terrain patches. It supports river valleys, ridged mountains, islands, thermal relaxation and a plan preview. It has no external terrain-tool dependency; its current installation and validation limits are recorded in the guide.
+
 QuadSpinner currently documents Gaea as Windows-only and states Gaea 2 needs AVX2 unavailable in the macOS Parallels environment. It is not a required tool for this codebase. [QuadSpinner FAQ](https://quadspinner.com/FAQ).
 
 Blender supports Apple Silicon; check the selected version's macOS requirements rather than assuming every Mac supports every release. [Blender requirements](https://www.blender.org/download/requirements/).

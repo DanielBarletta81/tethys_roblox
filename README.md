@@ -9,6 +9,7 @@ A Luau code portfolio for **Wildbound**, a prehistoric exploration and survival 
 | System | Engineering problem | Read first |
 | --- | --- | --- |
 | Nature Scatter v1 | Repeatable environment placement that can be safely regenerated and cleared | [NatureScatter](src/ReplicatedStorage/Tethys/WorldModules/Scatter/NatureScatter.luau), [asset placement](src/ReplicatedStorage/Tethys/WorldModules/Scatter/AssetPlacement.luau), [Studio tests](tests/NatureScatter.spec.luau) |
+| Tethys Terrain 0.1 | Seeded terrain authoring with a read-only preview, bounded edits and sculpt-safe cleanup | [heightfield](plugins/TethysTerrain/Modules/Heightfield.luau), [edit policy](plugins/TethysTerrain/Modules/EditSession.luau), [plugin guide](docs/engineering/tethys-terrain.md) |
 | Ordovic opening | Apply downstream force while preserving lateral steering; hold and release a deliberate intake choice | [FlowMath](src/ServerScriptService/OrdovicOpening/FlowMath.luau), [IntakeService](src/ServerScriptService/OrdovicOpening/IntakeService.luau), [Controller](src/ServerScriptService/OrdovicOpening/Controller.luau) |
 | Cordge observations | Reject invalid inspections and control one-shot dialogue, priority and per-player state | [CordgeController](src/ServerScriptService/OrdovicOpening/CordgeController.luau), [policy](src/ServerScriptService/OrdovicOpening/CordgePolicy.luau), [policy tests](tests/CordgePolicy.spec.luau) |
 | Contextual HUD | Keep gameplay authoritative while presenting prompts, bounded notices and accessible transitions | [runtime binder](src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau), [NoticeController](src/ReplicatedStorage/WildboundUI/Controllers/NoticeController.luau), [effects tests](tests/UIRuntime.effects.playtest.luau) |
@@ -31,6 +32,7 @@ The module layout follows Roblox services. Stateful services use small object in
 | Opening/Cordge | 23 unit groups, 11 live Cordge groups, two subtitle ownership checks | Assisted checks do not establish a complete unassisted route |
 | Water readability | Eight live groups; 102 cues sampled actual Terrain water | A route prototype, not a watershed simulation |
 | Portable CI | Reuses the six Cordge policy cases; compiles all Luau sources/tests/tools; checks repository contents and links | Engine, Terrain, prompts and UI rendering require Studio |
+| Terrain plugin 0.1 | 15 portable groups and nine native Terrain groups; model source round-trip | Dock interaction and plugin-owned Undo/Redo await local installation; see the plugin guide |
 
 These are separate dated checkpoints, not one combined test total. See [testing and evidence](docs/engineering/testing.md), [recorded validation](docs/engineering/validation.json), and [setup](docs/engineering/setup.md).
 

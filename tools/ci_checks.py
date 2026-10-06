@@ -27,10 +27,10 @@ def allowed(path):
     parts = path.parts
     if path.as_posix() in ROOT_FILES:
         return True
-    if parts[0] in ('src', 'tests'):
+    if parts[0] in ('src', 'tests', 'plugins'):
         return path.suffix in ('.luau', '.txt')
     if parts[0] == 'tools':
-        return path.suffix == '.luau' or path.as_posix() in ('tools/ci_checks.py', 'tools/install_luau.py', 'tools/luau-release.json')
+        return path.suffix == '.luau' or path.as_posix() in ('tools/ci_checks.py', 'tools/install_luau.py', 'tools/luau-release.json', 'tools/package_terrain_plugin.py')
     if parts[:2] == ('docs', 'engineering'):
         return path.suffix in ('.md', '.json')
     if parts[:2] == ('docs', 'media'):
@@ -113,6 +113,8 @@ def main():
     audit_repository(files)
     compile_luau(args.luau_dir.resolve(), files)
     cordge_policy(args.luau_dir.resolve())
+    print(run([str(args.luau_dir.resolve() / 'luau'), 'tests/TethysTerrain.spec.luau']).strip())
+    print(run(['python3', 'tools/package_terrain_plugin.py']).strip())
 
 
 if __name__ == '__main__':

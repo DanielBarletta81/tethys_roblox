@@ -8,6 +8,7 @@
 - Persistence remains planned. Before shipping it, specify the save schema, migrations, retry/failure behavior and concurrency tests. Do not describe session-only state as a DataStore implementation.
 - Preserve reviewed sandbox boundaries, existing owners, original assets and generated-pass ownership. Do not broaden capabilities to get a test to pass.
 - Mac terrain workflow: Blender or native Studio terrain/heightmaps. Heightmaps enter through Terrain Editor -> Import; meshes use the appropriate 3D import workflow. Optional paid add-ons are not required dependencies.
+- Tethys Terrain is a local Studio authoring plugin. Preserve its read-only preview, bounded empty-patch rule, separate water channel, owned metadata and sculpt-safe Clear. Keep thermal erosion claims distinct from hydraulic erosion. Do not publish/install unrelated tooling or alter project capabilities for its tests.
 - Maintain quiet Game1 presentation, contextual exploration later, sparse authored speech and reduced-motion behavior. Do not turn an ambiguous Stryker appearance into a confirmed predator alert.
 - Test the relevant behavior and record what was actually exercised. Separate portable CI, Studio fixtures, assisted integration checks and unassisted/controller acceptance. Do not combine historical counts into an invented current total.
 - Keep the public portfolio curated: source, tests, engineering docs and selected evidence. Leave private design PDFs, place backups, original asset packs, local baselines and credentials out of Git.

@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-06",
+  "version": "0.1.0",
+  "portable": {
+    "groups": 15,
+    "luauCompiler": "0.741",
+    "compiledSources": 85
+  },
+  "studio": {
+    "placeId": 72645647440721,
+    "groups": 9,
+    "names": [
+      "native solid and liquid channels",
+      "generated metadata ownership",
+      "raycasts hit actual Terrain water and riverbed",
+      "existing terrain rejection preserves the patch",
+      "Clear restores the complete original box",
+      "seed reproduces native quantized voxel channels",
+      "manual sculpting blocks Clear",
+      "water-only conflicts are protected",
+      "Part bounds guard and explicit selected guide"
+    ],
+    "seed": 20261005,
+    "boundsMin": [
+      8000,
+      0,
+      8000
+    ],
+    "boundsSize": [
+      128,
+      96,
+      128
+    ],
+    "voxels": 24576,
+    "solidCells": 6915,
+    "liquidCells": 356,
+    "generationSeconds": 0.03792129165958613,
+    "waterSurfaceY": 12,
+    "riverbedY": 7.162109375,
+    "restored": true,
+    "pluginUndoTested": false
+  },
+  "packaging": {
+    "modules": 8,
+    "entryPoints": 1,
+    "sourceRoundTrip": true
+  },
+  "pending": [
+    "Installed dock interaction",
+    "Plugin-owned Undo/Redo"
+  ],
+  "limits": [
+    "Engine fixture uses test transaction adapter; production ChangeHistoryService recording is not exercised",
+    "Native terrain interpolation shifts the raycast bed from analytical heights",
+    "Preview is a sampled plan view",
+    "Thermal relaxation is not hydraulic erosion"
+  ]
+}
