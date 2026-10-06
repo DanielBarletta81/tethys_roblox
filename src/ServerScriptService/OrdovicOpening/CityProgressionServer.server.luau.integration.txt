@@ -1,0 +1,9 @@
+Target: game.Workspace.World.08_Gameplay.City_Progression.05_Quest_Logic.CityProgressionServer
+
+Replace only the default SC_Message assignment in initializePlayer:
+	local opening = workspace:FindFirstChild("WildboundOpening_Ordovic")
+	local inOpening = opening and opening:GetAttribute("OpeningEnabled") == true
+	setIfMissing(player, "SC_Message", inOpening and "" or "Welcome to Sky City. The surrounding routes are open; choose how far to walk.")
+
+This suppresses the city welcome while the approved Ordovic opening is enabled.
+Existing city progression, XP gates, prompts and messages remain owned by that script.

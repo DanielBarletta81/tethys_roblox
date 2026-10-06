@@ -1,0 +1,13 @@
+{
+  "version": "0.741",
+  "archives": {
+    "luau-macos.zip": {
+      "url": "https://github.com/luau-lang/luau/releases/download/0.741/luau-macos.zip",
+      "sha256": "839cc1de39b0f765fbaea8e89421c12acfed6bd3d8d2cc2a2d3fc64bdde32b0f"
+    },
+    "luau-ubuntu.zip": {
+      "url": "https://github.com/luau-lang/luau/releases/download/0.741/luau-ubuntu.zip",
+      "sha256": "134dc762ad26232af83e43f98dec03ff6030dd3a4452f9408b9d50ccea025503"
+    }
+  }
+}

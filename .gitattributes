@@ -1,0 +1,8 @@
+* text=auto
+*.luau text eol=lf linguist-language=Luau
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.jpg binary
+*.png binary

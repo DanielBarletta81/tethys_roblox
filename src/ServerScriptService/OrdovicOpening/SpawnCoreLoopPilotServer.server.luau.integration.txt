@@ -1,0 +1,223 @@
+local Players = game:GetService("Players")
+
+local world = workspace:WaitForChild("World")
+local city = world:FindFirstChild("Sky_City") or world
+local gameplay = city:WaitForChild("08_Gameplay")
+local spawnFolder = gameplay:WaitForChild("00_Spawn")
+local progression = gameplay:WaitForChild("City_Progression")
+local hatcheryWatch = gameplay:WaitForChild("Hatchery_Watch")
+
+local footStations = progression:WaitForChild("01_Foot_Mission_Stations")
+local climbStations = progression:WaitForChild("02_Givers_Falls_Climb")
+local hatcheryStations = hatcheryWatch:WaitForChild("01_Inspection_Stations")
+
+local states = {}
+
+local function routeFirstNode(folder)
+    local chosenPart
+    local chosenOrder = math.huge
+
+    for _, part in ipairs(folder:GetChildren()) do
+        if part:IsA("BasePart") then
+            local prompt = part:FindFirstChildOfClass("ProximityPrompt")
+            local order = prompt and (prompt:GetAttribute("Order") or 1) or 1
+            if order < chosenOrder then
+                chosenOrder = order
+                chosenPart = part
+            end
+        end
+    end
+
+    return chosenPart
+end
+
+local firstFoot = routeFirstNode(footStations)
+local firstClimb = routeFirstNode(climbStations)
+local firstHatchery = routeFirstNode(hatcheryStations)
+
+local cityBeauty = city:FindFirstChild("12_City_Beauty_Pass")
+local arrivalClarity = cityBeauty and cityBeauty:FindFirstChild("ModelStyle") and cityBeauty.ModelStyle:FindFirstChild("Spawn_Arrival_Clarity")
+local citywardGateway = arrivalClarity and arrivalClarity:FindFirstChild("Cityward_Gateway_Silhouette")
+local citywardTarget = citywardGateway and citywardGateway:FindFirstChild("Gateway_Crown")
+
+local limboHome = city:WaitForChild("09_CaveNetwork"):WaitForChild("06_PlayerResidences"):WaitForChild("Limbo")
+local limboCommonArea = limboHome:WaitForChild("03_CommonArea")
+local homeFocus = limboCommonArea:FindFirstChild("CommonBench_A") or limboCommonArea:FindFirstChild("WaterPoint")
+local spawnDisc = limboCommonArea:FindFirstChild("SharedStorage") or spawnFolder:FindFirstChild("Spawn_SkyCity_Default")
+
+local function ensurePrompt(name, actionText, objectText, holdDuration)
+    if not spawnDisc then
+        return nil
+    end
+
+    local prompt = spawnDisc:FindFirstChild(name)
+    if not prompt then
+        prompt = Instance.new("ProximityPrompt")
+        prompt.Name = name
+        prompt.Parent = spawnDisc
+    end
+
+    prompt.ActionText = actionText
+    prompt.ObjectText = objectText
+    prompt.HoldDuration = holdDuration
+    prompt.MaxActivationDistance = 12
+    prompt.RequiresLineOfSight = false
+
+    return prompt
+end
+
+local function setMessage(player, message)
+    if player:GetAttribute("SC_Message") ~= nil then
+        player:SetAttribute("SC_Message", message)
+    end
+end
+
+local function setHWMessage(player, message)
+    player:SetAttribute("HW_Message", message)
+end
+
+local function orientCharacterTowards(player, target)
+    if not target then
+        return
+    end
+
+    local character = player.Character
+    if not character then
+        return
+    end
+
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if not root then
+        return
+    end
+
+    local rootPos = root.Position
+    local targetPos = target.Position
+    local lookAt = Vector3.new(targetPos.X, rootPos.Y, targetPos.Z)
+    if (lookAt - rootPos).Magnitude < 1 then
+        return
+    end
+
+    root.CFrame = CFrame.lookAt(rootPos, lookAt)
+end
+
+local function deriveStage(player)
+    if player:GetAttribute("WB_OrdovicActive") == true then return "OrdovicOpening" end
+    if player:GetAttribute("OpeningBuildId") and player:GetAttribute("WildboundOpeningChoice") == "CITY" and player:GetAttribute("HW_Complete") ~= true then return "IntakeArrival" end
+    if player:GetAttribute("HW_Complete") == true then
+        return "CityOpen"
+    end
+    return "HatcheryInvitation"
+end
+
+local function stageMessage(stage)
+    if stage == "HatcheryInvitation" then
+        return "You're home. Take a moment. A Hatchery worker could use another pair of eyes when you're ready."
+    end
+    return "The water is moving well again. Sky City is open; choose what you want to do next."
+end
+
+local function refreshStage(player, pushMessage)
+    local state = states[player]
+    if not state then
+        return
+    end
+
+    local stage = deriveStage(player)
+    player:SetAttribute("SC_OnboardingStage", stage)
+    player:SetAttribute("SC_CoreLoopReadyForPublish", stage == "CityOpen")
+
+    if pushMessage and stage ~= state.lastStage and stage ~= "OrdovicOpening" and stage ~= "IntakeArrival" then
+        setMessage(player, stageMessage(stage))
+
+        if stage == "HatcheryInvitation" and (player:GetAttribute("HW_Message") == nil or player:GetAttribute("HW_Message") == "") then
+            setHWMessage(player, "Proceed to Hatchery Watch and inspect stations in order.")
+        end
+    end
+
+    state.lastStage = stage
+end
+
+local function connectPlayer(player)
+    if not states[player] then
+        states[player] = {
+            lastStage = "",
+            connections = {},
+        }
+    end
+
+    local state = states[player]
+
+    if player:GetAttribute("SC_SpawnBriefingDone") == nil then
+        player:SetAttribute("SC_SpawnBriefingDone", false)
+    end
+    if player:GetAttribute("SC_OnboardingStage") == nil then
+        player:SetAttribute("SC_OnboardingStage", "SpawnBriefing")
+    end
+    if player:GetAttribute("SC_CoreLoopReadyForPublish") == nil then
+        player:SetAttribute("SC_CoreLoopReadyForPublish", false)
+    end
+
+    local function bind(attr)
+        local conn = player:GetAttributeChangedSignal(attr):Connect(function()
+            refreshStage(player, true)
+        end)
+        table.insert(state.connections, conn)
+    end
+
+    bind("SC_SpawnBriefingDone")
+    bind("SC_FootLoops")
+    bind("SC_GiversClimbComplete")
+    bind("HW_Complete")
+    bind("WB_OrdovicActive")
+    bind("WildboundOpeningChoice")
+
+    player.CharacterAdded:Connect(function()
+        task.wait(0.25)
+
+        local stage = deriveStage(player)
+        if stage == "HatcheryInvitation" then
+            orientCharacterTowards(player, homeFocus)
+        end
+
+        refreshStage(player, true)
+    end)
+
+    refreshStage(player, false)
+end
+
+local briefingPrompt = ensurePrompt("SpawnPilotBriefingPrompt", "Look Around", "Your Limbo Home", 0.2)
+local minorsPrompt = spawnDisc and spawnDisc:FindFirstChild("SpawnPilotModeMinorsPrompt")
+local adultsPrompt = spawnDisc and spawnDisc:FindFirstChild("SpawnPilotModeAdultsPrompt")
+if minorsPrompt then minorsPrompt:Destroy() end
+if adultsPrompt then adultsPrompt:Destroy() end
+
+if briefingPrompt then
+    briefingPrompt.Triggered:Connect(function(player)
+        if player:GetAttribute("SC_SpawnBriefingDone") ~= true then
+            player:SetAttribute("SC_SpawnBriefingDone", true)
+            setMessage(player, "Orientation noted. You're free to explore; follow the water or work sounds whenever you like.")
+            setHWMessage(player, "A Hatchery worker could use another pair of eyes. Visit when you're ready.")
+        else
+            refreshStage(player, true)
+            setMessage(player, "You're free to explore Sky City at your own pace.")
+        end
+    end)
+end
+
+Players.PlayerAdded:Connect(connectPlayer)
+
+Players.PlayerRemoving:Connect(function(player)
+    local state = states[player]
+    if state and state.connections then
+        for _, conn in ipairs(state.connections) do
+            conn:Disconnect()
+        end
+    end
+    states[player] = nil
+end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    connectPlayer(player)
+end
+

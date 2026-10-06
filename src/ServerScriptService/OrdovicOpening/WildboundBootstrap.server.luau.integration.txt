@@ -1,0 +1,70 @@
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+
+local servicesFolder = script.Parent:WaitForChild("Services")
+local RuntimeService = require(servicesFolder:WaitForChild("RuntimeService"))
+local TriggerService = require(servicesFolder:WaitForChild("TriggerService"))
+
+local function findTriggerById(triggerId)
+	for _, trigger in ipairs(CollectionService:GetTagged("WB_Trigger")) do
+		if trigger:GetAttribute("WB_TriggerId") == triggerId then
+			return trigger
+		end
+	end
+	return nil
+end
+
+
+local function syncOpeningChoice(player)
+	if player:GetAttribute("OpeningBuildId") ~= "OrdovicV1_20261006" then return end
+	local choice = player:GetAttribute("WildboundOpeningChoice")
+	if choice ~= "CITY" and choice ~= "DOWNSTREAM" then return end
+	RuntimeService:Set(player, "IntakeOutcome", choice == "CITY" and "CAPTURED" or "REFUSED")
+	RuntimeService:Set(player, "Region", "ORDOVIC")
+	RuntimeService:Set(player, "Zone", choice == "CITY" and "INTAKE_WORKS" or "WATCHER_APPROACH")
+	if choice == "CITY" then RuntimeService:Set(player, "CityEntry", "INTAKE") end
+	RuntimeService:SetLastAction(player, "ORDOVIC_CHOICE -> " .. choice)
+end
+
+local function initPlayer(player)
+	RuntimeService:Create(player)
+	player:GetAttributeChangedSignal("WildboundOpeningChoice"):Connect(function() syncOpeningChoice(player) end)
+	syncOpeningChoice(player)
+
+	player:GetAttributeChangedSignal("WB_DebugResetState"):Connect(function()
+		if player:GetAttribute("WB_DebugResetState") == true then
+			RuntimeService:Remove(player)
+			RuntimeService:Create(player)
+			TriggerService:ResetPlayer(player)
+			player:SetAttribute("WB_DebugResetState", false)
+		end
+	end)
+
+	player:GetAttributeChangedSignal("WB_DebugTriggerId"):Connect(function()
+		local triggerId = player:GetAttribute("WB_DebugTriggerId")
+		if type(triggerId) ~= "string" or triggerId == "" then
+			return
+		end
+
+		local trigger = findTriggerById(triggerId)
+		if trigger then
+			TriggerService:Handle(player, trigger)
+		end
+
+		player:SetAttribute("WB_DebugTriggerId", "")
+	end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+	initPlayer(player)
+end
+
+Players.PlayerAdded:Connect(initPlayer)
+Players.PlayerRemoving:Connect(function(player)
+	RuntimeService:Remove(player)
+	TriggerService:ResetPlayer(player)
+end)
+
+TriggerService:Start()
+
+print("[WildboundServer] Bootstrap started")

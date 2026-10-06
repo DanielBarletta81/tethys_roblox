@@ -1,0 +1,80 @@
+{
+  "recordedAt": "2026-10-06",
+  "context": "Historical Roblox Studio checkpoint; not a CI execution result",
+  "hud": {
+    "runtime": "HUD1.3",
+    "groups": 40,
+    "failed": 0,
+    "suites": {
+      "effects": 15,
+      "layout": 4,
+      "style": 11,
+      "art": 7,
+      "profiles": 3
+    },
+    "matchedCompiledSources": 9,
+    "sources": [
+      {
+        "path": "ReplicatedStorage/WildboundUI/PresentationPolicy.luau",
+        "sha256": "8d2af23d74b788b940556a5831dff02474d454ac744f6e5401894aa1699751ff"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/UIEffects.luau",
+        "sha256": "a2c4b5644bb7edafa7a10592b50eb3678bd27539821e6b08292d73e99e4c2547"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/Controllers/CharacterPreviewController.luau",
+        "sha256": "0e40a3ab5c241738454a0658b4660516bfb519b4f495096baccb25ac05c1c909"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/AssetCatalog.luau",
+        "sha256": "5b71fae9ba448d54773a8ba8b514ba5a1d4cfcaa12640d0ad42e29c0d6fc4072"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/UIStyle.luau",
+        "sha256": "93dc9ec588e4d3b47fb6199185dbf598f63203b517d1f496cd5ced131de2598f"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/Controllers/NoticeController.luau",
+        "sha256": "54fef5d0e3d3643d7c321616b369b9abed159600717fdd7ce0c4b6274dd5d169"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/Controllers/HUDController.luau",
+        "sha256": "593b660440031b05044bed5c84ac46f2e43fa00d6d942b915580389c4ed8bd13"
+      },
+      {
+        "path": "ReplicatedStorage/WildboundUI/Controllers/MenuController.luau",
+        "sha256": "c02f3c61e7085af5eb06cdca550ead139dbae8373044461405ae0213b996dbcc"
+      },
+      {
+        "path": "StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau",
+        "sha256": "a2a0585b59a189fa4f5e85894e3d40cf3ebc37f7e3c90cf37951d4ab4a84f637"
+      }
+    ]
+  },
+  "scatter": {
+    "groups": 14,
+    "seed": 20261005,
+    "realTerrain": true,
+    "clearAndUndoChecked": true
+  },
+  "openingCordge": {
+    "unitGroups": 23,
+    "liveCordgeGroups": 11,
+    "subtitleOwnershipGroups": 2
+  },
+  "water": {
+    "liveGroups": 8,
+    "terrainSampledCues": 102
+  },
+  "limits": [
+    "Full unassisted route not validated",
+    "Physical controller and actual mobile touch not validated",
+    "First civic trigger placement in new route remains pending",
+    "Finished character art and production persistence not delivered"
+  ],
+  "media": {
+    "title-preview.jpg": "Controlled client UI preview at Wake; no discovery award",
+    "cordge-cave.jpg": "Native inspection prompt and authored speech in the graybox cave"
+  }
+}
