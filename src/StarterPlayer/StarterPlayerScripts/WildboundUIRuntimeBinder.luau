@@ -55,12 +55,13 @@ local numericSlots = {
 }
 local directionalSlots = { [Enum.KeyCode.DPadUp] = 1, [Enum.KeyCode.DPadLeft] = 2, [Enum.KeyCode.DPadRight] = 3, [Enum.KeyCode.DPadDown] = 4 }
 ContextActionService:BindActionAtPriority("WB_RadialItems", function(_, state, input)
-	if ui:GetAttribute("WB_MenuOpen") or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
+	if ui:GetAttribute("WB_ReturnNoticeActive") or ui:GetAttribute("WB_MenuOpen") or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
 	if state == Enum.UserInputState.Begin then inventory:SelectQuick(directionalSlots[input.KeyCode]) end
 	return Enum.ContextActionResult.Sink
 end, false, 3200, Enum.KeyCode.DPadUp, Enum.KeyCode.DPadLeft, Enum.KeyCode.DPadRight, Enum.KeyCode.DPadDown)
 UserInputService.InputBegan:Connect(function(input, processed)
 	local key = input.KeyCode
+	if ui:GetAttribute("WB_ReturnNoticeActive") then return end
 	if key == Enum.KeyCode.ButtonB and ui:GetAttribute("WB_MenuOpen") then menu:CloseAll(); return end
 	if processed or UserInputService:GetFocusedTextBox() then return end
 	if key == Enum.KeyCode.M or key == Enum.KeyCode.ButtonStart then menu:SetOpen(not menu.open); return end

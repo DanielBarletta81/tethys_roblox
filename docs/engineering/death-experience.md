@@ -46,11 +46,13 @@ Apply the two adjacent `.integration.txt` recipes to the named existing bootstra
 
 ## Rest adapter
 
-The existing shared camps have six build choices: covered shelter, raised sleep, storage, boundary, water basin and heat pit. F builds or tends supplies; R settles Rest, separate from existing E observations. Native holds reach server handlers that validate life, distance, solid occlusion and available resources.
+The existing shared camps have six build choices: covered shelter, raised sleep, storage, boundary, water basin and heat pit. F builds or tends supplies; R settles Rest, separate from existing E observations. Controller X performs camp context actions, leaving Y for inventory. Build prompts show material costs before spending. Native holds reach server handlers that validate life, distance, solid occlusion and available resources.
 
 Anchors sample nearby real ground. Cover, platform condition, ground support, stored water and warm heat are checked again when claiming and returning. Private ownership is respected when `OwnerUserId` is set. The shared camps otherwise remain shared. Rest affects the return destination and reward safety classification; it does not suppress world damage.
 
 The supply model is deliberately small: one `WaterSkin` inventory unit is treated as a filled water ration for the basin; one Fiber fuels ten minutes of heat. This prototype does not model reusable containers, water plumbing, rain extinguishing or structural weather simulation. Construction spends materials voluntarily; death adds no new resource penalty.
+
+After assembly, an invalid Rest remains inspectable through **Check Rest** and its unmet condition. A valid site offers **Rest until morning** with a readable location name. Filling water or feeding heat updates that presentation immediately. Inspection never overrides server claim validation; a dry, cold or damaged site still cannot become a return destination. Incomplete camps retain their build prompts without inviting a Rest claim.
 
 Creek Shelf and Root Rise have usable nearby floor. Rock Ledge's current guide has no nearby stable support, so its build prompts are disabled. Its original geometry remains intact. The prior camp script's missing SweepR wait now uses the existing CityEdge-to-first-camp guide.
 
@@ -58,11 +60,15 @@ Death never deletes a home. A valid claimed Rest takes priority through the Ordo
 
 ## Quiet presentation
 
-One six-second card says **Tethys got you.** followed by the awarded exploration amount, or **Experience carried forward.** for zero awards. It closes open menus, captures no input and gives the cue priority over speech, toasts and location cards. The 0.2-second fades respect reduced motion. Duplicate revisions cannot replay the card, and an older timer cannot hide a newer cue. No permanent XP gauge was added.
+One six-second card says **Tethys got you.** followed by the awarded exploration amount, or **Experience carried forward.** for zero awards. The card uses the existing title typeface and muted body text. It stays at 420 pixels maximum width, expanding from 82 to 102 pixels tall below 340 pixels of available card width so text can wrap without shrinking.
+
+It closes open menus, captures no input and gives the cue priority over speech, toasts, location cards and native interactions. Held interactions end when the cue arrives; native prompts and menu shortcuts resume afterward. Movement stays available. Touch prompts distinguish HOLD from TAP. The 0.2-second fades respect reduced motion. Duplicate revisions cannot replay the card, and an older timer cannot hide a newer cue. No permanent XP gauge was added.
 
 ## Evidence and limits
 
 See [the recorded checkpoint](death-experience-validation.json). Portable policy tests cover thresholds, idle/safe rejection, teleport/pause rejection, one award per life, stale callbacks, evidence uniqueness, caps, repeat taper, changed attempts, location boundaries, rolling-budget eviction and ordinary earned XP composition.
+
+The later [presentation polish checkpoint](death-rest-polish-validation.json) records eight client cue groups, five isolated camp-prompt groups and four native prompt-priority groups. Native M/I and menu-button checks confirmed menus cannot reopen during return priority and recover afterward. All 27 camp action prompts use controller X in the running place; this is a mapping inspection, not physical-controller acceptance. A Studio screenshot preview showed the production 420×82 card against the actual cave scene. Temporary fixtures were removed and Studio returned to Edit mode.
 
 Studio fixtures test physical Rest and the client cue. Four native bridge checks confirm that validated inspection earns contextual ledger credit once, without awarding immediate XP or formal knowledge. Assisted native checks used supplied materials, actual prompt holds, a three-leg Humanoid walk and real `Humanoid.Died`/respawn events. The final walk earned 11 death XP after approximately 54 active seconds and 728 studs. An 18-XP ordinary reward produced a 29-XP player total while the legacy counter stayed at 18. Knowledge and the home survived; cooling the Rest caused fallback, and the next spawn death awarded zero.
 

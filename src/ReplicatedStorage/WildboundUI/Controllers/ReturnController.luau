@@ -7,13 +7,24 @@ function Return.new(player, ui, onReturn)
 	local self = setmetatable({Token = 0, Seen = nil}, Return)
 	self.Frame = Style.New("Frame", "FR_ReturnNotice", ui.InteractionUI, {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.65),
-		Size = UDim2.new(0.8, 0, 0, 82), Visible = false, ZIndex = 48,
+		Size = UDim2.new(0.9, 0, 0, 82), Visible = false, ZIndex = 48,
 	})
-	Style.Panel(self.Frame); Style.Fit(self.Frame, 420, 82)
+	Style.Panel(self.Frame); Style.Fit(self.Frame, 420, 102)
+	self.Frame.BackgroundTransparency = 0.22
 	local title = Style.Text("TL_ReturnTitle", self.Frame, "Tethys got you.", UDim2.fromOffset(12, 8), UDim2.new(1, -24, 0, 30), 22)
+	title.Font = Style.Theme.Typography.TitleFont
 	title.TextXAlignment = Enum.TextXAlignment.Center
 	self.Message = Style.Text("TL_ReturnExperience", self.Frame, "", UDim2.fromOffset(12, 43), UDim2.new(1, -24, 0, 25), 15)
 	self.Message.TextXAlignment = Enum.TextXAlignment.Center
+	self.Message.TextColor3 = Style.Theme.Colors.Ash
+	local function layout()
+		-- Keep body text readable; a narrow card gets two lines instead of tiny type.
+		local narrow = self.Frame.AbsoluteSize.X < 340
+		self.Frame.Size = UDim2.new(0.9, 0, 0, narrow and 102 or 82)
+		self.Message.Size = UDim2.new(1, -24, 0, narrow and 44 or 25)
+	end
+	self.LayoutConnection = self.Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout)
+	layout()
 	self.Effects = Effects.new(self.Frame, ui)
 	local function show()
 		local revision = player:GetAttribute("WB_DeathExperienceRevision")
@@ -43,7 +54,7 @@ function Return.new(player, ui, onReturn)
 	self.MotionConnection = ui:GetAttributeChangedSignal("WB_ReducedMotion"):Connect(reduced)
 	self.SystemMotionConnection = game:GetService("GuiService"):GetPropertyChangedSignal("ReducedMotionEnabled"):Connect(reduced)
 	self.DestroyConnection = ui.Destroying:Connect(function()
-		self.Token += 1; self.Connection:Disconnect(); self.MotionConnection:Disconnect(); self.SystemMotionConnection:Disconnect(); self.Effects:Cancel()
+		self.Token += 1; self.Connection:Disconnect(); self.MotionConnection:Disconnect(); self.SystemMotionConnection:Disconnect(); self.LayoutConnection:Disconnect(); self.Effects:Cancel()
 	end)
 	show()
 	return self

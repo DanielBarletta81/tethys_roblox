@@ -188,6 +188,7 @@ function Inventory:Select(index)
 end
 
 function Inventory:SetOpen(open)
+	if open and self.ui:GetAttribute("WB_ReturnNoticeActive") then return end
 	self.panel.Visible = open == true
 	if open then self:_renderList() end
 	if self.onOpenChanged then self.onOpenChanged(open == true) end

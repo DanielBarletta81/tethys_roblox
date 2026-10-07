@@ -34,6 +34,7 @@ The module layout follows Roblox services. Stateful services use small object in
 | Opening/Cordge | 23 unit groups, 11 live Cordge groups, two subtitle ownership checks | Assisted checks do not establish a complete unassisted route |
 | Water readability | Eight live groups; 102 cues sampled actual Terrain water | A route prototype, not a watershed simulation |
 | Death/Rest 26G | 21 portable policy groups, 16 Rest engine groups, seven return-UI groups and assisted native death/return checks | Session persistence; Rock Ledge awaits ground correction; see the build notes |
+| Death/Rest polish | Eight cue groups, five camp-prompt groups, four native prompt-priority groups; menu-key/button recovery and visual cave preview | [Checkpoint](docs/engineering/death-rest-polish-validation.json); controller mappings inspected, device acceptance remains open |
 | Portable CI | Reuses the six Cordge policy cases and 21 death-experience groups; compiles all Luau sources/tests/tools; checks repository contents and links | Engine, Terrain, prompts and UI rendering require Studio |
 | Terrain plugin 0.1 | 15 portable groups and nine native Terrain groups; model source round-trip | Dock interaction and plugin-owned Undo/Redo await local installation; see the plugin guide |
 

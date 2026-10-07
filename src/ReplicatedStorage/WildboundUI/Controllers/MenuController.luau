@@ -137,6 +137,7 @@ function Menu:_syncOverlay()
 end
 
 function Menu:SetOpen(open)
+	if open and self.ui:GetAttribute("WB_ReturnNoticeActive") then return end
 	if open then
 		self.externalOpen = false
 		if self.onBeforeOpen then self.onBeforeOpen() end
@@ -154,6 +155,7 @@ function Menu:SetOpen(open)
 end
 
 function Menu:ShowSettings()
+	if self.ui:GetAttribute("WB_ReturnNoticeActive") then return end
 	self.open, self.panel.Visible, self.settings.Visible = false, false, true
 	self:_syncOverlay()
 	GuiService.SelectedObject = self.settingButtons[1]

@@ -4,7 +4,9 @@ Legend: | shows unchanged context; + adds code; - removes code. This is a review
 The old delayed camp teleport is replaced by RestService, with Ordovic as the opening spawn owner.
 The missing SweepR guide is replaced by the existing CityEdge-to-first-camp route guide, preventing the old infinite wait.
 Camp anchors sample actual nearby ground; unsupported guide sites remain disabled.
-F builds/tends; R rests, separate from existing E observations.
+F builds/tends; R rests; controller X performs context actions, leaving Y for inventory.
+Build prompts show material costs. An assembled but invalid Rest explains its unmet condition through Check Rest.
+
 
 --- AlphaGameplayController (existing owner)
 +++ AlphaGameplayController (26G camp adapter)
@@ -55,28 +57,31 @@ F builds/tends; R rests, separate from existing E observations.
 |	for kind,spec in pairs(campSpecs)do
 |		local flag=site:FindFirstChild(kind)or Instance.new("BoolValue");flag.Name=kind;flag.Value=site:FindFirstChild("Built_"..kind)~=nil;flag.Parent=site
 -		local anchor=site:FindFirstChild("BuildAnchor_"..kind)or Instance.new("Part");anchor.Name="BuildAnchor_"..kind;anchor.Size=Vector3.new(3,1,3);anchor.Position=plot.Position+offsets[kind];anchor.Anchored=true;anchor.CanCollide=false;anchor.CanTouch=false;anchor.Transparency=1;anchor.Parent=site
+-		local buildPrompt=bindPrompt(anchor,"BuildPrompt",spec.action,campName,function(player)
+-			if flag.Value then notify(player,kind.." is already in place here.");return end
 +		local anchor=site:FindFirstChild("BuildAnchor_"..kind)or Instance.new("Part");anchor.Name="BuildAnchor_"..kind;anchor.Size=Vector3.new(3,1,3);anchor.Position=CampRestKit.Anchor(plot,kind) or plot.Position;anchor.Anchored=true;anchor.CanCollide=false;anchor.CanTouch=false;anchor.Transparency=1;anchor.Parent=site
-|		local buildPrompt=bindPrompt(anchor,"BuildPrompt",spec.action,campName,function(player)
++		local buildPrompt=bindPrompt(anchor,"BuildPrompt",spec.action,CampRestKit.Description(kind),function(player)
 +			if not Rest.InRange(player,anchor,10) then return end
 +            if not CampRestKit.Anchor(plot,kind) then notify(player,"This site needs nearby stable ground before building.");return end
-|			if flag.Value then notify(player,kind.." is already in place here.");return end
++			if flag.Value then notify(player,spec.label.." is already in place here.");return end
 |			local ok,need=enough(player,spec.cost);if not ok then notify(player,"This needs more "..need..". Gather nearby material and return.");return end
 -			spend(player,spec.cost);flag.Value=true;createCampPiece(site,kind,anchor.Position);local restAnchor=site:FindFirstChild("BuildAnchor_RestSpot");local restP=restAnchor and restAnchor:FindFirstChild("RestAtCampPrompt");if restP then local complete=true;for _,rn in ipairs({"Shelter","RestSpot","Storage","Boundary"}) do local rf=site:FindFirstChild(rn);if not rf or not rf.Value then complete=false end end;restP.Enabled=complete end
 -			local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end
 -			if all then site:SetAttribute("CampState","SECURED");camp:SetAttribute("AlphaCampSecured",true);notify(player,"The camp is secured. Shelter, rest, storage, and a boundary are in place.");record(player,"MajorRepair","Camp_"..campName.."_Secured","Completed a shared four-part camp build.",campName)
-+			spend(player,spec.cost);flag.Value=true;anchor.BuildPrompt.Enabled=false;createCampPiece(site,kind,anchor.Position);local restAnchor=site:FindFirstChild("BuildAnchor_RestSpot");local restP=restAnchor and restAnchor:FindFirstChild("RestAtCampPrompt");if restP then local complete=true;for _,rn in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"}) do local rf=site:FindFirstChild(rn);if not rf or not rf.Value then complete=false end end;restP.Enabled=complete and Rest.CanUse(site)==true end
+-			else notify(player,kind.." is in place. The camp still needs its other parts.")end
++			spend(player,spec.cost);flag.Value=true;anchor.BuildPrompt.Enabled=false;createCampPiece(site,kind,anchor.Position);CampRestKit.RefreshRest(site,campName)
 +			local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end
 +			if all then site:SetAttribute("CampState","SECURED");camp:SetAttribute("AlphaCampSecured",true);notify(player,"The camp is assembled. Store water and check the heat before resting.");record(player,"MajorRepair","Camp_"..campName.."_Secured","Completed the six-piece shared camp kit.",campName)
-|			else notify(player,kind.." is in place. The camp still needs its other parts.")end
++			else notify(player,spec.label.." is in place. The camp still needs its other parts.")end
 |		end,0.45)
-+        buildPrompt.KeyboardKeyCode=Enum.KeyCode.F;buildPrompt.GamepadKeyCode=Enum.KeyCode.ButtonY
++        buildPrompt.KeyboardKeyCode=Enum.KeyCode.F;buildPrompt.GamepadKeyCode=Enum.KeyCode.ButtonX
 +        buildPrompt.Enabled = not flag.Value and CampRestKit.Anchor(plot, kind) ~= nil
 +        anchor:SetAttribute("WB_SiteSupported", buildPrompt.Enabled)
 |		local restPrompt=anchor:FindFirstChild("RestAtCampPrompt")
 |		if kind=="RestSpot" then
 |			if not restPrompt then restPrompt=Instance.new("ProximityPrompt");restPrompt.Name="RestAtCampPrompt";restPrompt.Parent=anchor end
 -			restPrompt.ActionText="Rest until morning";restPrompt.ObjectText=campName;restPrompt.HoldDuration=.5;restPrompt.MaxActivationDistance=10;restPrompt.RequiresLineOfSight=false;restPrompt.Enabled=false
-+			restPrompt.KeyboardKeyCode=Enum.KeyCode.R;restPrompt.GamepadKeyCode=Enum.KeyCode.ButtonY;restPrompt.ActionText="Rest until morning";restPrompt.ObjectText=campName;restPrompt.HoldDuration=.5;restPrompt.MaxActivationDistance=10;restPrompt.RequiresLineOfSight=false;restPrompt.Enabled=false
++			restPrompt.KeyboardKeyCode=Enum.KeyCode.R;restPrompt.GamepadKeyCode=Enum.KeyCode.ButtonX;restPrompt.ActionText="Rest until morning";restPrompt.ObjectText=campName;restPrompt.HoldDuration=.5;restPrompt.MaxActivationDistance=10;restPrompt.RequiresLineOfSight=false;restPrompt.Enabled=false
 |			if restPrompt:GetAttribute("AlphaConnected")~=true then restPrompt:SetAttribute("AlphaConnected",true);restPrompt.Triggered:Connect(function(player)
 -				local allBuilt=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then allBuilt=false end end
 -				if not allBuilt then notify(player,"Finish shelter, rest spot, storage, and boundary first.");return end
@@ -92,7 +97,7 @@ F builds/tends; R rests, separate from existing E observations.
 |			end)end
 -			local function updateRestEnabled()local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end;restPrompt.Enabled=all end
 -			updateRestEnabled();site.ChildAdded:Connect(updateRestEnabled);for _,flagName in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local watched=site:FindFirstChild(flagName);if watched then watched:GetPropertyChangedSignal("Value"):Connect(updateRestEnabled)end end
-+			local function updateRestEnabled()local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end;restPrompt.Enabled=all and Rest.CanUse(site)==true end
++			local function updateRestEnabled()CampRestKit.RefreshRest(site,campName)end
 +			updateRestEnabled();site.ChildAdded:Connect(updateRestEnabled);for _,flagName in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local watched=site:FindFirstChild(flagName);if watched then watched:GetPropertyChangedSignal("Value"):Connect(updateRestEnabled)end end
 |		end
 |	end
@@ -125,3 +130,8 @@ F builds/tends; R rests, separate from existing E observations.
 |local wild=world["21_FirstWildZone"];local creek=wild["03_Creek"];local centerX=creek.CreekBed.Position.X;local lastSide={};for i=1,5 do local stone=creek:FindFirstChild("CrossingStone_"..i);if stone then stone.Touched:Connect(function(hit)local player=playerFromHit(hit);if not player then return end;local side=stone.Position.X<centerX and "West" or "East";local previous=lastSide[player.UserId];if previous and previous~=side then award(player,"CreekCrossed","Creek_Ford_Crossed","Crossed the first creek ford on foot.","FirstWildCreek");notify(player,"The stones are smoothed by repeated crossings. The bank keeps older flood lines.")end;lastSide[player.UserId]=side end)end end
 |local ashMouth=world:FindFirstChild("MysticWoods")
 |local ash=ashMouth and ashMouth:FindFirstChild("ASH_Approach")
+@@ -366,4 +374,3 @@
+|		end,.5)
+|	end
+|end
+-

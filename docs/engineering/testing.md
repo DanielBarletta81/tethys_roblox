@@ -27,3 +27,5 @@ Portable CI compiles all `.luau` files and reuses the existing six Cordge policy
 ## Death experience and Rest
 
 The 26G checkpoint is recorded separately in [death-experience-validation.json](death-experience-validation.json), with implementation and acceptance boundaries in [the build notes](death-experience.md). It includes 21 portable policy groups, 16 physical Rest groups, seven client cue groups and assisted native movement/death/respawn checks. It does not infer an unassisted opening run or persistent saves.
+
+The subsequent [death/Rest polish checkpoint](death-rest-polish-validation.json) exercised eight return-UI groups (including narrow widths), five camp-prompt groups and four native prompt-priority groups. It also checked native menu-key and menu-button recovery and the live controller mappings, and visually inspected the quiet cue against the cave scene. These are presentation checks; mobile hardware, a complete controller route and save/rejoin remain unaccepted.

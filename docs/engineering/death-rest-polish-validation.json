@@ -1,0 +1,87 @@
+{
+  "checkpoint": "Death and Rest presentation polish",
+  "date": "2026-10-06",
+  "installedPlaceId": 72645647440721,
+  "scope": "Presentation and contextual prompt feedback. Reward policy, physical Rest validation, world geometry and capabilities unchanged.",
+  "studioChecks": {
+    "returnUI": {
+      "fixture": "tests/DeathReturnUI.playtest.luau",
+      "passedGroups": 8,
+      "containerWidths": [
+        256,
+        320,
+        390,
+        640
+      ],
+      "scope": "Private attribute source; no XP granted. Readable wrapping, wording, reduced motion, deduplication and timer safety."
+    },
+    "campPrompts": {
+      "fixture": "tests/CampPrompts.studio.luau",
+      "passedGroups": 5,
+      "scope": "Isolated owned Parts, fresh modules and prompts; actual costs, missing water, readiness and cold/damaged claim rejection."
+    },
+    "nativePromptPriority": {
+      "fixture": "tests/ReturnPrompts.playtest.luau",
+      "passedGroups": 4,
+      "scope": "Live client prompt owner with a temporary prompt without a gameplay reward handler; interruption of holds, nested menu blocker and recovery."
+    },
+    "nativeKeys": {
+      "passed": true,
+      "observations": [
+        "M/I did not reopen menus under return priority.",
+        "M opened the menu after the cue blocker cleared; M then closed it.",
+        "Native mouse activation of the menu toggle did not reopen the menu during return priority.",
+        "Native mouse activation opened the menu after the blocker cleared; the next click closed it."
+      ]
+    },
+    "controllerMapping": {
+      "inspectedCampPrompts": 27,
+      "contextButton": "ButtonX",
+      "inventoryButton": "ButtonY",
+      "physicalControllerTested": false
+    },
+    "visualPreview": {
+      "method": "Studio screen_capture",
+      "captureId": "DeathRestPolishPreview",
+      "cardPixels": [
+        420,
+        82
+      ],
+      "scene": "Actual Ordovic cave viewport",
+      "observed": "Restrained serif title and muted experience line remain readable against the cave.",
+      "scope": "Production controller rendered with a private attribute source; no gameplay reward."
+    }
+  },
+  "sourceVerification": {
+    "matchedLiveSources": 7,
+    "publicSourceSha256": {
+      "src/ReplicatedStorage/WildboundUI/Controllers/ReturnController.luau": "347ff7507bc359c2ee26cd8bdafc8899b2198718d959763c69f0ffdd2d0eb8e5",
+      "src/ReplicatedStorage/WildboundUI/Controllers/PromptController.luau": "7c6ae27ef7d1615c70a127aa1f6135675c3d72fe257495b5feb3464120a86889",
+      "src/ServerScriptService/DeathExperience/CampRestKit.luau": "62b1456e60b8ce5f624e4992c5d16b0c056e51dbc2f2077bc7f24b48c8099575",
+      "src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau": "05d9af745635978f38494f4ddbbf311ad8fe227b53eb78783106f8bfd8520480",
+      "src/ReplicatedStorage/WildboundUI/Controllers/MenuController.luau": "ada2c265b0573207dc5a053ae855da7cef5fa9350bd08dabaadb27e82f5208e2",
+      "src/ReplicatedStorage/WildboundUI/Controllers/InventoryController.luau": "b3add60f27a7c3b58924542c179f32c0dc30b72d2361833db32098b0c3ca6dfd"
+    },
+    "existingOwnerRecipe": "src/ServerScriptService/DeathExperience/AlphaGameplayController.server.luau.integration.txt"
+  },
+  "cleanup": {
+    "temporaryFixturesRemoved": true,
+    "studioMode": "Edit",
+    "waypoint": "Death and Rest polish validated"
+  },
+  "portableCI": {
+    "status": "passed",
+    "trackedFiles": 128,
+    "compiledLuauFiles": 101,
+    "cordgePolicyGroups": 6,
+    "deathExperiencePolicyGroups": 21,
+    "terrainPluginPolicyGroups": 15,
+    "terrainPluginModelRoundTrip": true
+  },
+  "limits": [
+    "Session-only XP and Rest; no save/rejoin acceptance.",
+    "Rock Ledge awaits stable ground placement.",
+    "No physical mobile/controller or complete unassisted route acceptance.",
+    "Existing two missing water-audio warnings remain."
+  ]
+}

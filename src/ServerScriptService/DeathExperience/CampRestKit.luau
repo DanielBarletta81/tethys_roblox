@@ -2,13 +2,38 @@
 local Rest = require(script.Parent.RestService)
 local Kit = {}
 Kit.Specs = {
-	Shelter = {cost = {Fiber = 1, Stone = 1}, action = "Build covered shelter"},
-	RestSpot = {cost = {Fiber = 1}, action = "Raise the sleeping place"},
-	Storage = {cost = {Fiber = 1, Resin = 1}, action = "Make shared storage"},
-	Boundary = {cost = {Stone = 1}, action = "Mark camp boundary"},
-	WaterBasin = {cost = {Stone = 2}, action = "Build water basin"},
-	HeatPit = {cost = {Stone = 2, Fiber = 1}, action = "Prepare heat pit"},
+	Shelter = {cost = {Fiber = 1, Stone = 1}, action = "Build covered shelter", label = "Covered shelter"},
+	RestSpot = {cost = {Fiber = 1}, action = "Raise the sleeping place", label = "Raised sleep"},
+	Storage = {cost = {Fiber = 1, Resin = 1}, action = "Make shared storage", label = "Shared storage"},
+	Boundary = {cost = {Stone = 1}, action = "Mark camp boundary", label = "Camp boundary"},
+	WaterBasin = {cost = {Stone = 2}, action = "Build water basin", label = "Water basin"},
+	HeatPit = {cost = {Stone = 2, Fiber = 1}, action = "Prepare heat pit", label = "Heat pit"},
 }
+function Kit.Description(kind)
+	local spec, costs = Kit.Specs[kind], {}
+	for _, material in ipairs({"Fiber", "Stone", "Resin"}) do
+		if spec.cost[material] then table.insert(costs, spec.cost[material] .. " " .. material:lower()) end
+	end
+	return spec.label .. " · " .. table.concat(costs, " + ")
+end
+function Kit.RefreshRest(site, id)
+	local ready, reason = Rest.CanUse(site)
+	local assembled = true
+	for kind in pairs(Kit.Specs) do
+		if not site:FindFirstChild("Built_" .. kind) then assembled = false end
+	end
+	site:SetAttribute("WB_RestReady", ready)
+	site:SetAttribute("WB_RestStatus", ready and "Covered sleep, stored water and heat are ready." or reason)
+	local anchor = site:FindFirstChild("BuildAnchor_RestSpot")
+	local restPrompt = anchor and anchor:FindFirstChild("RestAtCampPrompt")
+	if restPrompt then
+		restPrompt.ActionText = ready and "Rest until morning" or "Check Rest"
+		restPrompt.ObjectText = ready and id:gsub("^Camp_[A-Z]_", ""):gsub("(%l)(%u)", "%1 %2") or reason
+		-- An assembled but cold/dry camp can explain itself; Claim still revalidates.
+		restPrompt.Enabled = assembled
+	end
+	return ready
+end
 local offsets = {Shelter = Vector3.zero, RestSpot = Vector3.zero, Storage = Vector3.new(7, 0, 4),
 	Boundary = Vector3.new(0, 0, -8), WaterBasin = Vector3.new(6, 0, -3), HeatPit = Vector3.new(-6, 0, -3)}
 function Kit.Anchor(plot, kind)
@@ -74,7 +99,7 @@ local function prompt(anchor, name, action)
 	p.Name, p.ActionText, p.ObjectText, p.HoldDuration = name, action, "Fieldhold", 0.5
 	-- Decorative guides are queryable; the server ray validates solid occlusion instead.
 	p.MaxActivationDistance, p.RequiresLineOfSight, p.Parent = 10, false, anchor
-	p.KeyboardKeyCode, p.GamepadKeyCode = Enum.KeyCode.F, Enum.KeyCode.ButtonY
+	p.KeyboardKeyCode, p.GamepadKeyCode = Enum.KeyCode.F, Enum.KeyCode.ButtonX
 	return p
 end
 function Kit.Bind(site, id)
@@ -82,6 +107,7 @@ function Kit.Bind(site, id)
 	local waterAnchor, heatAnchor = site.BuildAnchor_WaterBasin, site.BuildAnchor_HeatPit
 	local fill = prompt(waterAnchor, "StoreWaterPrompt", "Store water")
 	local fuel = prompt(heatAnchor, "FuelHeatPrompt", "Feed heat")
+	fill.ObjectText, fuel.ObjectText = "Water basin · filled waterskin", "Heat pit · 1 dry fiber"
 	fill.Triggered:Connect(function(player)
 		local model = site:FindFirstChild("Built_WaterBasin")
 		local basin = model and model:FindFirstChild("Basin")
@@ -97,7 +123,9 @@ function Kit.Bind(site, id)
 		for _, value in ipairs(inventory:GetChildren()) do if value:IsA("IntValue") then total += value.Value end end
 		player:SetAttribute("INV_TotalCount", total)
 		model.StoredWaterSurface.Transparency = 0.35
-		player:SetAttribute("SC_Message", "Water stored. Check the heat and sleeping cover.")
+		local ready = Kit.RefreshRest(site, id)
+		player:SetAttribute("SC_Message", ready and "Water stored. This Rest is ready." or "Water stored. Check the heat and sleeping cover.")
+		fill.Enabled = false
 	end)
 	fuel.Triggered:Connect(function(player)
 		local model = site:FindFirstChild("Built_HeatPit")
@@ -106,6 +134,9 @@ function Kit.Bind(site, id)
 		local fiber = player:GetAttribute("TS_Fiber") or 0
 		if fiber < 1 then player:SetAttribute("SC_Message", "Dry fiber is needed for the heat."); return end
 		player:SetAttribute("TS_Fiber", fiber - 1); heat:SetAttribute("WarmUntil", os.clock() + 600)
+		local ready = Kit.RefreshRest(site, id)
+		player:SetAttribute("SC_Message", ready and "The heat holds. This Rest is ready." or "The heat holds. Check the water and sleeping cover.")
+		fuel.Enabled = false
 	end)
 	-- A single bounded camp refresh; fuel expiration also invalidates Rest at respawn time.
 	task.spawn(function()
@@ -117,8 +148,7 @@ function Kit.Bind(site, id)
 			fill.Enabled = basin ~= nil and basin.Basin:GetAttribute("StoredWater") <= 0
 			fuel.Enabled = heat ~= nil and heat.Heat:GetAttribute("WarmUntil") <= os.clock()
 			if heat then heat.Heat.Transparency = fuel.Enabled and 0.7 or 0; heat.Heat.PointLight.Enabled = not fuel.Enabled end
-			local restPrompt = site.BuildAnchor_RestSpot:FindFirstChild("RestAtCampPrompt")
-			if restPrompt then restPrompt.Enabled = Rest.CanUse(site) == true end
+			Kit.RefreshRest(site, id)
 			task.wait(2)
 		end
 	end)

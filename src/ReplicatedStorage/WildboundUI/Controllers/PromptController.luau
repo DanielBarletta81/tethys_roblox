@@ -4,7 +4,7 @@ local Style = require(script.Parent.Parent.UIStyle)
 local PromptUI = {}
 
 local function glyph(prompt, mode)
-	if mode == "Touch" then return "TAP" end
+	if mode == "Touch" then return prompt.HoldDuration > 0 and "HOLD" or "TAP" end
 	local name = mode == "Controller" and prompt.GamepadKeyCode.Name or prompt.KeyboardKeyCode.Name
 	return name:gsub("^Button", "")
 end
@@ -20,6 +20,9 @@ function PromptUI.new(ui, inputMode)
 	-- Keep registered prompts alive in Lua; weak instance keys can disappear while
 	-- their world instance remains, leaving a Custom prompt with no rendered view.
 	local active, owned, serial = {}, {}, 0
+	local function blocked()
+		return ui:GetAttribute("WB_MenuOpen") == true or ui:GetAttribute("WB_ReturnNoticeActive") == true
+	end
 	local function register(prompt)
 		if prompt:IsA("ProximityPrompt") and prompt.Style == Enum.ProximityPromptStyle.Default
 			and prompt:GetAttribute("WB_KeepDefaultUI") ~= true then
@@ -33,9 +36,8 @@ function PromptUI.new(ui, inputMode)
 	local function refresh()
 		local count = 0
 		for _ in pairs(active) do count += 1 end
-		local blocked = ui:GetAttribute("WB_MenuOpen") == true
 		Style.Fit(bar, math.min(680, math.max(1, count) * 320), 62)
-		bar.Visible = count > 0 and not blocked
+		bar.Visible = count > 0 and not blocked()
 		for prompt, view in pairs(active) do
 			view.frame.Size = UDim2.new(1 / math.max(1, count), -8, 1, 0)
 			view.frame.FR_Keycap.TL_Key.Text = glyph(prompt, inputMode:GetMode())
@@ -66,7 +68,7 @@ function PromptUI.new(ui, inputMode)
 		frame.FR_Keycap.TL_Key.TextSize = 12
 		frame.TL_Action.Position, frame.TL_Action.Size = UDim2.fromOffset(58, 9), UDim2.new(1, -68, 0, 20)
 		frame.TL_Action.Font, frame.TL_Action.TextSize = Style.Theme.Typography.StrongFont, 14
-		local object = Style.Text("TL_Object", frame, "", UDim2.fromOffset(58, 30), UDim2.new(1, -68, 0, 20), 11)
+		local object = Style.Text("TL_Object", frame, "", UDim2.fromOffset(58, 28), UDim2.new(1, -68, 0, 30), 11)
 		object.TextColor3 = Style.Theme.Colors.Ash
 		local fill = Style.New("Frame", "FR_HoldProgress", frame, {
 			Position = UDim2.new(0, 0, 1, -3), Size = UDim2.new(0, 0, 0, 3),
@@ -76,7 +78,7 @@ function PromptUI.new(ui, inputMode)
 		local view = { frame = frame, object = object, fill = fill, connections = {} }
 		active[prompt] = view
 		local function begin(input)
-			if ui:GetAttribute("WB_MenuOpen") or not prompt.ClickablePrompt then return end
+			if blocked() or not prompt.ClickablePrompt then return end
 			if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
 				view.holding = true
 				prompt:InputHoldBegin()
@@ -92,6 +94,7 @@ function PromptUI.new(ui, inputMode)
 		table.insert(view.connections, button.InputEnded:Connect(finish))
 		table.insert(view.connections, prompt:GetPropertyChangedSignal("ActionText"):Connect(refresh))
 		table.insert(view.connections, prompt:GetPropertyChangedSignal("ObjectText"):Connect(refresh))
+		table.insert(view.connections, prompt:GetPropertyChangedSignal("HoldDuration"):Connect(refresh))
 		table.insert(view.connections, prompt.Destroying:Connect(function() hide(prompt) end))
 		refresh()
 	end)
@@ -115,8 +118,8 @@ function PromptUI.new(ui, inputMode)
 		end
 	end)
 	local previousEnabled
-	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(function()
-		if ui:GetAttribute("WB_MenuOpen") then
+	local function refreshBlocked()
+		if blocked() then
 			if previousEnabled == nil then previousEnabled = ProximityPromptService.Enabled end
 			ProximityPromptService.Enabled = false
 			for prompt, view in pairs(active) do if view.holding then view.holding = false; prompt:InputHoldEnd() end end
@@ -125,9 +128,12 @@ function PromptUI.new(ui, inputMode)
 			previousEnabled = nil
 		end
 		refresh()
-	end)
+	end
+	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(refreshBlocked)
+	ui:GetAttributeChangedSignal("WB_ReturnNoticeActive"):Connect(refreshBlocked)
 	inputMode:ModeChangedSignal():Connect(refresh)
 	bar.Visible = false
+	refreshBlocked()
 	return { Refresh = refresh }
 end
 
