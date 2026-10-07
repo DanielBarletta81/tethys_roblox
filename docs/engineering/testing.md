@@ -18,8 +18,12 @@ Opening tests covered flow math, capture/release, branch checkpoints and a livin
 - Finished character visuals, animation and audio. The menu portrait adapter was exercised with a sanitized synthetic model.
 - Multi-client latency and streaming checks, then persistence failure/concurrency tests when those systems are implemented.
 
-Existing missing water-audio and an unrelated AlphaGameplayController wait warning were observed. They are not claimed fixed by the HUD pass. No published release or production reliability signoff is inferred from these checks.
+Existing missing water-audio and an unrelated AlphaGameplayController wait warning were observed at the HUD checkpoint. The later 26G camp adapter fixes that specific missing-guide wait; the audio warnings remain. No published release or production reliability signoff is inferred from these checks.
 
 ## CI boundary
 
 Portable CI compiles all `.luau` files and reuses the existing six Cordge policy cases against the real modules. It also checks the curated file selection, high-confidence credential patterns and relative documentation links. These checks run without Roblox credentials. Engine tests remain explicit Studio steps because Terrain, Instances, prompts, physics and rendering are not the standalone Luau runtime.
+
+## Death experience and Rest
+
+The 26G checkpoint is recorded separately in [death-experience-validation.json](death-experience-validation.json), with implementation and acceptance boundaries in [the build notes](death-experience.md). It includes 21 portable policy groups, 16 physical Rest groups, seven client cue groups and assisted native movement/death/respawn checks. It does not infer an unassisted opening run or persistent saves.

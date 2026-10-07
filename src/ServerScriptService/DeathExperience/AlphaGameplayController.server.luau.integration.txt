@@ -1,0 +1,127 @@
+Apply this patch to the existing ServerScriptService.Bootstrap.AlphaGameplayController.
+Keep its other milestone, world-time, repair and biography logic. This is an edit recipe, not an additional Script.
+Legend: | shows unchanged context; + adds code; - removes code. This is a reviewable edit recipe, not a git-apply file.
+The old delayed camp teleport is replaced by RestService, with Ordovic as the opening spawn owner.
+The missing SweepR guide is replaced by the existing CityEdge-to-first-camp route guide, preventing the old infinite wait.
+Camp anchors sample actual nearby ground; unsupported guide sites remain disabled.
+F builds/tends; R rests, separate from existing E observations.
+
+--- AlphaGameplayController (existing owner)
++++ AlphaGameplayController (26G camp adapter)
+@@ -9,6 +9,9 @@
+|local definitions = ReplicatedStorage:WaitForChild("Tethys"):WaitForChild("Definitions"):WaitForChild("AlphaMilestones")
+|local biographyEvent = script.Parent:WaitForChild("PlayerBiographyController"):WaitForChild("RecordBiographyEvent")
+|local nightTransitionActive = false
++local Experience = require(game.ServerScriptService.DeathExperience.Service)
++local Rest = require(game.ServerScriptService.DeathExperience.RestService)
++local CampRestKit = require(game.ServerScriptService.DeathExperience.CampRestKit)
+|
+|local function notify(player, text)
+|	player:SetAttribute("SC_Message", text)
+@@ -220,22 +223,16 @@
+|end
+|local weepTrigger=makeTrigger("AlphaWeepArrivalTrigger",alpha,Vector3.new(105,45,85),sky.The_Weep:GetPivot())
+|weepTrigger.Touched:Connect(function(hit)local player=playerFromHit(hit);if player and award(player,"WeepReached","Weep_FirstArrival","Arrived at Weep and found a place to choose what comes next.","TheWeep") then notify(player,"The city opens here: home, Hall, Temple, Greenhouse, or the Edge.")end end)
+-local edgeGuide=production:WaitForChild("29_SweepR_WorldIntegration"):WaitForChild("01_MacroGeography"):WaitForChild("WorldAnchors"):WaitForChild("GUIDE_CityEdge")
++local edgeGuide=production["01_PlayableRoutes"].Route_CityEdgeToFirstCamp["00_GUIDES"].GUIDE_01_CityEdge
+|local edgeTrigger=makeTrigger("AlphaCityEdgeTrigger",alpha,Vector3.new(35,18,35),CFrame.new(edgeGuide.Position))
+|edgeTrigger.Touched:Connect(function(hit)local player=playerFromHit(hit);if player and award(player,"CityEdgeReached","CityEdge_FirstArrival","Walked from worked stone into the open City Edge.","CityEdge") then notify(player,"The path is open. You can go out, prepare, or turn back.")end end)
+|
+|local camps=world:WaitForChild("21_FirstWildZone"):WaitForChild("06_Camps")
+-local campSpecs={Shelter={cost={Fiber=1,Stone=1},action="Build shelter frame"},RestSpot={cost={Fiber=1},action="Make a rest spot"},Storage={cost={Fiber=1,Resin=1},action="Make shared storage"},Boundary={cost={Stone=1},action="Mark camp boundary"}}
++local campSpecs = CampRestKit.Specs
+|local function enough(player,cost)for kind,amount in pairs(cost)do if (player:GetAttribute("TS_"..kind)or 0)<amount then return false,kind end end;return true end
+|local function spend(player,cost)for kind,amount in pairs(cost)do player:SetAttribute("TS_"..kind,(player:GetAttribute("TS_"..kind)or 0)-amount)end end
+-local function createCampPiece(site,kind,pos)
+-	local model=site:FindFirstChild("Built_"..kind) or Instance.new("Model");model.Name="Built_"..kind;model:SetAttribute("BuiltByCommunity",true);model.Parent=site
+-	local function piece(n,size,offset,material,color,shape)local p=Instance.new("Part");p.Name=n;p.Size=size;p.Position=pos+offset;p.Anchored=true;p.CanCollide=false;p.CanTouch=false;p.Material=material;p.Color=color;if shape then p.Shape=shape end;p.Parent=model end
+-	if #model:GetChildren()>0 then return end
+-	if kind=="Shelter" then piece("Post_L",Vector3.new(.6,4,.6),Vector3.new(-2,2,-1),Enum.Material.Wood,Color3.fromRGB(87,68,47));piece("Post_R",Vector3.new(.6,4,.6),Vector3.new(2,2,-1),Enum.Material.Wood,Color3.fromRGB(87,68,47));piece("Ridge",Vector3.new(5,.7,.7),Vector3.new(0,4,-1),Enum.Material.Wood,Color3.fromRGB(95,71,48));piece("Cover",Vector3.new(6,.35,4),Vector3.new(0,3.8,0),Enum.Material.Grass,Color3.fromRGB(79,96,64))
+-	elseif kind=="RestSpot" then piece("WovenMat",Vector3.new(3,.25,5),Vector3.new(0,.2,0),Enum.Material.Fabric,Color3.fromRGB(134,111,77))
+-	elseif kind=="Storage" then piece("SuppliesBox",Vector3.new(2.5,1.5,2),Vector3.new(0,.75,0),Enum.Material.Wood,Color3.fromRGB(100,73,47))
+-	elseif kind=="Boundary" then piece("MarkerPost",Vector3.new(.5,2.2,.5),Vector3.new(0,1.1,0),Enum.Material.Wood,Color3.fromRGB(98,80,55));piece("MarkerTop",Vector3.new(1.1,.2,.3),Vector3.new(0,1.8,0),Enum.Material.Fabric,Color3.fromRGB(134,111,77)) end
++local function createCampPiece(site, kind, position)
++ return CampRestKit.Build(site, kind, position)
+|end
+|local restTransition=false
+|local function advanceAlphaNight(player,campName)
+@@ -261,35 +258,43 @@
+|	notify(player,"Morning. There are fresh signs near the boundary, but your camp held.")
+|	restTransition=false
+|end
+-local offsets={Shelter=Vector3.new(-5,1,0),RestSpot=Vector3.new(4,1,0),Storage=Vector3.new(0,1,5),Boundary=Vector3.new(0,1,-6)}
+|for _,campName in ipairs({"Camp_A_CreekShelf","Camp_B_RootRise","Camp_C_RockLedge"})do
+|	local camp=camps:WaitForChild(campName);local plot=camp:FindFirstChild("CampPlot",true);local site=camp:FindFirstChild("AlphaCampBuild")or Instance.new("Folder");site.Name="AlphaCampBuild";site.Parent=camp;site:SetAttribute("PersistenceStatus","RuntimeOnly_SaveIntegrationRequired")
+|	for kind,spec in pairs(campSpecs)do
+|		local flag=site:FindFirstChild(kind)or Instance.new("BoolValue");flag.Name=kind;flag.Value=site:FindFirstChild("Built_"..kind)~=nil;flag.Parent=site
+-		local anchor=site:FindFirstChild("BuildAnchor_"..kind)or Instance.new("Part");anchor.Name="BuildAnchor_"..kind;anchor.Size=Vector3.new(3,1,3);anchor.Position=plot.Position+offsets[kind];anchor.Anchored=true;anchor.CanCollide=false;anchor.CanTouch=false;anchor.Transparency=1;anchor.Parent=site
++		local anchor=site:FindFirstChild("BuildAnchor_"..kind)or Instance.new("Part");anchor.Name="BuildAnchor_"..kind;anchor.Size=Vector3.new(3,1,3);anchor.Position=CampRestKit.Anchor(plot,kind) or plot.Position;anchor.Anchored=true;anchor.CanCollide=false;anchor.CanTouch=false;anchor.Transparency=1;anchor.Parent=site
+|		local buildPrompt=bindPrompt(anchor,"BuildPrompt",spec.action,campName,function(player)
++			if not Rest.InRange(player,anchor,10) then return end
++            if not CampRestKit.Anchor(plot,kind) then notify(player,"This site needs nearby stable ground before building.");return end
+|			if flag.Value then notify(player,kind.." is already in place here.");return end
+|			local ok,need=enough(player,spec.cost);if not ok then notify(player,"This needs more "..need..". Gather nearby material and return.");return end
+-			spend(player,spec.cost);flag.Value=true;createCampPiece(site,kind,anchor.Position);local restAnchor=site:FindFirstChild("BuildAnchor_RestSpot");local restP=restAnchor and restAnchor:FindFirstChild("RestAtCampPrompt");if restP then local complete=true;for _,rn in ipairs({"Shelter","RestSpot","Storage","Boundary"}) do local rf=site:FindFirstChild(rn);if not rf or not rf.Value then complete=false end end;restP.Enabled=complete end
+-			local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end
+-			if all then site:SetAttribute("CampState","SECURED");camp:SetAttribute("AlphaCampSecured",true);notify(player,"The camp is secured. Shelter, rest, storage, and a boundary are in place.");record(player,"MajorRepair","Camp_"..campName.."_Secured","Completed a shared four-part camp build.",campName)
++			spend(player,spec.cost);flag.Value=true;anchor.BuildPrompt.Enabled=false;createCampPiece(site,kind,anchor.Position);local restAnchor=site:FindFirstChild("BuildAnchor_RestSpot");local restP=restAnchor and restAnchor:FindFirstChild("RestAtCampPrompt");if restP then local complete=true;for _,rn in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"}) do local rf=site:FindFirstChild(rn);if not rf or not rf.Value then complete=false end end;restP.Enabled=complete and Rest.CanUse(site)==true end
++			local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end
++			if all then site:SetAttribute("CampState","SECURED");camp:SetAttribute("AlphaCampSecured",true);notify(player,"The camp is assembled. Store water and check the heat before resting.");record(player,"MajorRepair","Camp_"..campName.."_Secured","Completed the six-piece shared camp kit.",campName)
+|			else notify(player,kind.." is in place. The camp still needs its other parts.")end
+|		end,0.45)
++        buildPrompt.KeyboardKeyCode=Enum.KeyCode.F;buildPrompt.GamepadKeyCode=Enum.KeyCode.ButtonY
++        buildPrompt.Enabled = not flag.Value and CampRestKit.Anchor(plot, kind) ~= nil
++        anchor:SetAttribute("WB_SiteSupported", buildPrompt.Enabled)
+|		local restPrompt=anchor:FindFirstChild("RestAtCampPrompt")
+|		if kind=="RestSpot" then
+|			if not restPrompt then restPrompt=Instance.new("ProximityPrompt");restPrompt.Name="RestAtCampPrompt";restPrompt.Parent=anchor end
+-			restPrompt.ActionText="Rest until morning";restPrompt.ObjectText=campName;restPrompt.HoldDuration=.5;restPrompt.MaxActivationDistance=10;restPrompt.RequiresLineOfSight=false;restPrompt.Enabled=false
++			restPrompt.KeyboardKeyCode=Enum.KeyCode.R;restPrompt.GamepadKeyCode=Enum.KeyCode.ButtonY;restPrompt.ActionText="Rest until morning";restPrompt.ObjectText=campName;restPrompt.HoldDuration=.5;restPrompt.MaxActivationDistance=10;restPrompt.RequiresLineOfSight=false;restPrompt.Enabled=false
+|			if restPrompt:GetAttribute("AlphaConnected")~=true then restPrompt:SetAttribute("AlphaConnected",true);restPrompt.Triggered:Connect(function(player)
+-				local allBuilt=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then allBuilt=false end end
+-				if not allBuilt then notify(player,"Finish shelter, rest spot, storage, and boundary first.");return end
++				local allBuilt=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then allBuilt=false end end
++				if not allBuilt then notify(player,"Finish covered sleep, storage, boundary, water basin, and heat first.");return end
++                local claimed, reason = Rest.Claim(player, site)
++                if not claimed then notify(player, reason); return end
++                Experience.Record(player, "Interactions", "Rest:" .. campName)
+|				local state=ensureState(player);state:SetAttribute("CampRespawnEligible",true);state:SetAttribute("ChosenCamp",campName);player:SetAttribute("AlphaRespawnCamp",campName);player:SetAttribute("AlphaRestedAtCamp",true);player:SetAttribute("FirstCampProtection",true)
+-				award(player,"FirstCampSecured","Camp_"..campName.."_Secured","Rested at a community camp built from four parts.",campName);record(player,"SharedMoment","CampRest_"..campName.."_"..tostring(os.time()),"Shared a first safe camp rest.",campName)
++				award(player,"FirstCampSecured","Camp_"..campName.."_Secured","Settled at a community camp with covered sleep, stored water, and heat.",campName);record(player,"SharedMoment","CampRest_"..campName.."_"..tostring(os.time()),"Shared a first safe camp rest.",campName)
+|				advanceAlphaNight(player,campName)
+|			end)end
+-			local function updateRestEnabled()local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end;restPrompt.Enabled=all end
+-			updateRestEnabled();site.ChildAdded:Connect(updateRestEnabled);for _,flagName in ipairs({"Shelter","RestSpot","Storage","Boundary"})do local watched=site:FindFirstChild(flagName);if watched then watched:GetPropertyChangedSignal("Value"):Connect(updateRestEnabled)end end
++			local function updateRestEnabled()local all=true;for _,required in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local requiredFlag=site:FindFirstChild(required);if not requiredFlag or not requiredFlag.Value then all=false end end;restPrompt.Enabled=all and Rest.CanUse(site)==true end
++			updateRestEnabled();site.ChildAdded:Connect(updateRestEnabled);for _,flagName in ipairs({"Shelter","RestSpot","Storage","Boundary","WaterBasin","HeatPit"})do local watched=site:FindFirstChild(flagName);if watched then watched:GetPropertyChangedSignal("Value"):Connect(updateRestEnabled)end end
+|		end
+|	end
++	CampRestKit.Bind(site, campName)
+|end
+|local function setupPlayer(player)
+|	local state=ensureState(player)
+@@ -300,9 +305,12 @@
+|	end
+|	player.CharacterAdded:Connect(function(character)
+|		recordFirstSpawn()
+-		local hum=character:WaitForChild("Humanoid",5)
+-		if hum then hum.Died:Connect(function()if state:GetAttribute("CampRespawnEligible")==true then player:SetAttribute("AlphaRespawnPending",true)end end)end
+-		if player:GetAttribute("AlphaRespawnPending")==true then task.wait(.5);local campName=player:GetAttribute("AlphaRespawnCamp");local camp=campName and camps:FindFirstChild(campName);local plot=camp and camp:FindFirstChild("CampPlot",true);local rootPart=character:FindFirstChild("HumanoidRootPart");if plot and rootPart then rootPart.CFrame=plot.CFrame+Vector3.new(0,5,0);player:SetAttribute("AlphaRespawnPending",false)end end
++        local opening = workspace:FindFirstChild("WildboundOpening_Ordovic")
++        if not opening or opening:GetAttribute("OpeningEnabled") ~= true then
++            character:WaitForChild("Humanoid", 5)
++            character:WaitForChild("HumanoidRootPart", 5)
++            if player.Character == character then Rest.TryRespawn(player, character) end
++        end
+|	end)
+|	if player.Character then recordFirstSpawn() end
+|end
+@@ -313,7 +321,7 @@
+|	part.Touched:Connect(function(hit)local player=playerFromHit(hit);if player and award(player,milestone,"Alpha_"..milestone,text,name)then notify(player,text)end end);return part
+|end
+|local weepMarker=sky.The_Weep:FindFirstChild("Weep_Marker");local weepPos=weepMarker and weepMarker.Position or sky.The_Weep:GetPivot().Position;trigger("AlphaWeepArrivalTrigger",weepPos,Vector3.new(105,36,75),"WeepReached","Weep opens the choices: home, Hall, Temple, Greenhouse, or the Edge.")
+-local edgeGuide=production["29_SweepR_WorldIntegration"]["01_MacroGeography"].WorldAnchors.GUIDE_CityEdge;trigger("AlphaCityEdgeTrigger",edgeGuide.Position,Vector3.new(35,18,35),"CityEdgeReached","The path is open. You can go out, prepare, or turn back.")
++local edgeGuide=production["01_PlayableRoutes"].Route_CityEdgeToFirstCamp["00_GUIDES"].GUIDE_01_CityEdge;trigger("AlphaCityEdgeTrigger",edgeGuide.Position,Vector3.new(35,18,35),"CityEdgeReached","The path is open. You can go out, prepare, or turn back.")
+|local wild=world["21_FirstWildZone"];local creek=wild["03_Creek"];local centerX=creek.CreekBed.Position.X;local lastSide={};for i=1,5 do local stone=creek:FindFirstChild("CrossingStone_"..i);if stone then stone.Touched:Connect(function(hit)local player=playerFromHit(hit);if not player then return end;local side=stone.Position.X<centerX and "West" or "East";local previous=lastSide[player.UserId];if previous and previous~=side then award(player,"CreekCrossed","Creek_Ford_Crossed","Crossed the first creek ford on foot.","FirstWildCreek");notify(player,"The stones are smoothed by repeated crossings. The bank keeps older flood lines.")end;lastSide[player.UserId]=side end)end end
+|local ashMouth=world:FindFirstChild("MysticWoods")
+|local ash=ashMouth and ashMouth:FindFirstChild("ASH_Approach")

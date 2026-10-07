@@ -5,6 +5,7 @@ local Intake = require(script.Parent.IntakeService)
 local Hazard = require(script.Parent.HazardService)
 local Stryker = require(script.Parent.StrykerService)
 local Checkpoint = require(script.Parent.CheckpointService)
+local Rest = require(script.Parent.ExperienceBridge)
 local Controller = {}
 function Controller.CanLand(state, landing)
 	local h = state.Humanoid
@@ -38,7 +39,10 @@ function Controller.Start(root)
 		local state = {Player = player, Character = character, Humanoid = humanoid, Root = part, Choice = choice}
 		states[player], byCharacter[character] = state, state
 		player:SetAttribute("WB_OpeningInjured", false)
-		if choice == "CITY" then
+		if Rest.TryRespawn(player, character) then
+			state.Landed = true; player:SetAttribute("WB_OrdovicActive", false)
+			player:SetAttribute("OpeningPhase", "FIELDHOLD_RETURN")
+		elseif choice == "CITY" then
 			state.Landed = true; player:SetAttribute("WB_OrdovicActive", false)
 			player:SetAttribute("OpeningPhase", "INTAKE_WORKS")
 			character:PivotTo(CFrame.new(intake.Landing))

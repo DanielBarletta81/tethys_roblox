@@ -3,6 +3,7 @@ local RunService = game:GetService("RunService")
 local Math = require(script.Parent.FlowMath)
 local Dialogue = require(script.Parent.CordgeDialogue)
 local Policy = require(script.Parent.CordgePolicy)
+local Experience = require(script.Parent.ExperienceBridge)
 local Cordge = {}
 function Cordge.Start(cave)
 	assert(cave:GetAttribute("BuildReady"), "Cave slice is not ready")
@@ -43,6 +44,7 @@ function Cordge.Start(cave)
 		player:SetAttribute("WB_Clue_" .. id, true)
 		player:SetAttribute("WB_LastClueId", id)
 		player:SetAttribute("WB_CaveObservationText", marker:GetAttribute("ObservationText"))
+		Experience.Record(player, "Observations", "Cordge:" .. id)
 		return true
 	end
 	for _, marker in ipairs(cave["00_Guides"]:GetChildren()) do

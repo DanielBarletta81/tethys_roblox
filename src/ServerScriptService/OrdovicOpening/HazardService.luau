@@ -1,4 +1,5 @@
 local Hazard = {}
+local Experience = require(script.Parent.ExperienceBridge)
 Hazard.__index = Hazard
 function Hazard.new(root, getState)
 	local self = setmetatable({Connections = {}}, Hazard)
@@ -10,6 +11,7 @@ function Hazard.new(root, getState)
 			local speed = state.Root.AssemblyLinearVelocity.Magnitude
 			if speed < obstacle:GetAttribute("MinSpeed") or os.clock() - (state.LastImpact or -10) < 1.6 then return end
 			state.LastImpact = os.clock()
+			Experience.Hazard(state.Player, "RapidsImpact")
 			state.Humanoid:TakeDamage(obstacle:GetAttribute("Damage"))
 			local away = state.Root.Position - obstacle.Position
 			if away.Magnitude > 0.1 then state.Root:ApplyImpulse(away.Unit * state.Root.AssemblyMass * 6) end

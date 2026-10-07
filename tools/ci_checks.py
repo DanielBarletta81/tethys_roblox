@@ -113,6 +113,7 @@ def main():
     audit_repository(files)
     compile_luau(args.luau_dir.resolve(), files)
     cordge_policy(args.luau_dir.resolve())
+    print(run([str(args.luau_dir.resolve() / 'luau'), 'tests/DeathExperience.spec.luau']).strip())
     print(run([str(args.luau_dir.resolve() / 'luau'), 'tests/TethysTerrain.spec.luau']).strip())
     print(run(['python3', 'tools/package_terrain_plugin.py']).strip())
 

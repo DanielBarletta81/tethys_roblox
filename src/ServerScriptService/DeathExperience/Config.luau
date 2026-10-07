@@ -1,0 +1,20 @@
+--!strict
+return table.freeze({
+	Version = "26G.1",
+	SampleInterval = 0.5,
+	CellSize = 32,
+	MinActiveSeconds = 30,
+	MinDistance = 96,
+	MinCells = 3,
+	MaxSampleSeconds = 1.5,
+	MaxSpeed = 96,
+	ActivityGrace = 8,
+	DeathCooldown = 45,
+	RepeatWindow = 600,
+	BudgetWindow = 600,
+	WindowBudget = 36,
+	LifeCap = 18,
+	MaxVisitedCells = 4096,
+	MaxEvidence = 512,
+	MaxHistory = 64,
+})

@@ -1,0 +1,125 @@
+local modules = if game then game.ServerScriptService.DeathExperience else {
+	Ledger = "../src/ServerScriptService/DeathExperience/Ledger", Policy = "../src/ServerScriptService/DeathExperience/Policy",
+}
+local Ledger, Policy = require(modules.Ledger), require(modules.Policy)
+local results = {}
+local function test(name, fn)
+	local ok, err = pcall(fn)
+	table.insert(results, {name = name, passed = ok, error = not ok and tostring(err) or nil})
+	assert(ok, name .. ": " .. tostring(err))
+	print("PASS " .. name)
+end
+local function explore(ledger, token, now, prefix)
+	ledger:Begin(now, token)
+	for i = 1, 240 do assert(ledger:Sample(token, 0.5, 2, (prefix or "route") .. math.floor(i / 16), false, true)) end
+end
+test("Spawn deaths have no bonus", function()
+	local l = Ledger.new(); l:Begin(0, "a")
+	assert(l:Finish("a", 10, "River").Amount == 0)
+end)
+test("Idle outside safety is not exploration", function()
+	local l = Ledger.new(); l:Begin(0, "a")
+	for i = 1, 240 do l:Sample("a", 0.5, 0, "x", false, false) end
+	assert(l:Finish("a", 120, "River").Amount == 0)
+end)
+test("Safe-zone travel has no bonus", function()
+	local l = Ledger.new(); l:Begin(0, "a")
+	for i = 1, 240 do l:Sample("a", 0.5, 2, tostring(i), true, true) end
+	assert(l:Finish("a", 120, "River").Amount == 0)
+end)
+test("Time and observations alone do not bypass travel", function()
+	local l = Ledger.new(); l:Begin(0, "a"); l:Record("a", "Observations", "new")
+	for i = 1, 100 do l:Sample("a", 0.5, 0, "x", false, true) end
+	assert(l:Finish("a", 100, "River").Amount == 0)
+end)
+test("Teleports, pauses and nonfinite samples are rejected", function()
+	local l = Ledger.new(); local life = l:Begin(0, "a")
+	for _, sample in ipairs({{0.5, 300}, {2, 1}, {0, 1}, {0.5, -1}, {0/0, 1}, {0.5, 0/0}, {0.5, math.huge}}) do
+		assert(not l:Sample("a", sample[1], sample[2], "x", false, true))
+	end
+	assert(life.Active == 0 and life.Distance == 0 and life.Cells == 0)
+end)
+test("Meaningful exploration produces a modest bonus", function()
+	local l = Ledger.new(); explore(l, "a", 0)
+	local r = l:Finish("a", 120, "River"); assert(r.Amount > 0 and r.Amount <= 18)
+end)
+test("One life can award only once", function()
+	local l = Ledger.new(); explore(l, "a", 0)
+	local r = l:Finish("a", 120, "River")
+	assert(not l:Finish("a", 121, "River") and l.XP == r.Amount)
+end)
+test("Respawn creates fresh evidence; stale callbacks are ignored", function()
+	local l = Ledger.new(); explore(l, "old", 0); l:Begin(140, "new")
+	assert(not l:Finish("old", 150, "River") and not l:Sample("old", 0.5, 2, "x", false, true))
+	assert(l:Finish("new", 151, "River").Amount == 0)
+end)
+test("Character removal and reset cannot claim a reward", function()
+	local l = Ledger.new(); explore(l, "a", 0); l:Discard("a"); assert(not l:Finish("a", 120, "River"))
+end)
+test("Evidence is unique across lives and validates its kind", function()
+	local l = Ledger.new(); l:Begin(0, "a")
+	assert(l:Record("a", "Observations", "wall") and not l:Record("a", "Observations", "wall"))
+	l:Begin(10, "b"); assert(not l:Record("b", "Observations", "wall"))
+	assert(not l:Record("b", "Power", "fake") and not l:Record("b", "Areas", string.rep("a", 97)))
+end)
+test("All contextual evidence still respects the 18 XP cap", function()
+	local l = Ledger.new(); explore(l, "a", 0)
+	for _, kind in ipairs({"Observations", "Areas", "Interactions", "Hazards"}) do for i = 1, 4 do l:Record("a", kind, tostring(i)) end end
+	assert(l:Finish("a", 120, "River").Amount == 18)
+end)
+test("Repeated unchanged deaths diminish to zero", function()
+	local l, amounts = Ledger.new(), {}
+	for i = 1, 4 do explore(l, i, (i-1)*120); amounts[i] = l:Finish(i, i*120, "River").Amount end
+	assert(amounts[1] > amounts[2] and amounts[2] > amounts[3] and amounts[4] == 0)
+end)
+test("A new observation distinguishes a legitimate difficult attempt", function()
+	local l = Ledger.new()
+	for i = 1, 4 do explore(l, i, (i-1)*120); if i == 4 then l:Record(i, "Observations", "new-water-mark") end
+		local r = l:Finish(i, i*120, "River"); if i == 4 then assert(r.Amount > 0) end end
+end)
+test("Recent deaths get no reward even after a different hazard", function()
+	local l = Ledger.new(); explore(l, "a", 0); l:Finish("a", 120, "River")
+	explore(l, "b", 120); assert(l:Finish("b", 150, "Cliff").Reason == "RecentDeath")
+end)
+test("Budget limits different circumstances too", function()
+	local l = Ledger.new()
+	for i = 1, 3 do explore(l, i, (i-1)*120, tostring(i)); for n = 1, 3 do l:Record(i, "Observations", i .. ":" .. n) end
+		l:Record(i, "Hazards", "hazard" .. i)
+		local r = l:Finish(i, i*120, tostring(i)); assert(r.Amount == (i <= 2 and 18 or 0)) end
+	assert(l.XP == 36)
+end)
+test("Zero-award spawn spam cannot evict the paid rolling budget", function()
+	local l = Ledger.new()
+	for i = 1, 2 do explore(l, i, (i-1)*120, tostring(i)); for n = 1, 3 do l:Record(i, "Observations", i .. ":" .. n) end; l:Record(i, "Hazards", "hazard" .. i); l:Finish(i, i*120, tostring(i)) end
+	for i = 1, 100 do l:Begin(240+i, i); l:Finish(i, 240+i, "Spawn") end
+	explore(l, "again", 340, "new"); assert(l:Finish("again", 460, "NewHazard").Amount == 0 and l.XP == 36)
+end)
+test("Budget recovers after its window expires", function()
+	local l = Ledger.new(); explore(l, "a", 0); l:Finish("a", 120, "River")
+	explore(l, "b", 800); assert(l:Finish("b", 920, "River").Amount > 0)
+end)
+test("Nearby deaths match across cell boundaries; distant routes differ", function()
+	local life = {Started = 0, Active = 120, Distance = 480, Cells = 8, NewCells = 0, Observations = 0, Areas = 0, Interactions = 0, Hazards = 0}
+	local history = {{At = 0, Signature = "River", Award = 12, Location = {X = 31, Z = 0}}}
+	local nearby = Policy.Award(life, history, 120, "River", {X = 33, Z = 0})
+	local distant = Policy.Award(life, history, 120, "River", {X = 500, Z = 0})
+	assert(nearby < distant)
+end)
+test("Ledgers are isolated and levels represent experience only", function()
+	local a, b = Ledger.new(), Ledger.new(); explore(a, "a", 0); a:Finish("a", 120, "River")
+	assert(b.XP == 0 and next(b.Evidence) == nil and #b.History == 0)
+	assert(Policy.Level(0) == 1 and Policy.Level(99) == 1 and Policy.Level(100) == 2)
+end)
+test("Living route XP and death experience compose without duplicating rewards", function()
+	local l = Ledger.new(); assert(l:SetEarnedXP(100)); explore(l, "a", 0)
+	local r = l:Finish("a", 120, "River")
+	assert(l.EarnedXP == 100 and l.DeathXP == r.Amount and r.XP == 100 + r.Amount and r.Level == 2)
+	l:SetEarnedXP(100); assert(l.XP == r.XP)
+	l:SetEarnedXP(118); assert(l.XP == 118 + r.Amount)
+end)
+test("Invalid living XP cannot corrupt the experience ledger", function()
+	local l = Ledger.new(); l:SetEarnedXP(100)
+	assert(not l:SetEarnedXP(-1) and not l:SetEarnedXP(0/0) and not l:SetEarnedXP(math.huge) and l.XP == 100)
+end)
+print("Death experience: " .. #results .. " groups passed")
+return results

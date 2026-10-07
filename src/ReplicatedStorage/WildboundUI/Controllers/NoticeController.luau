@@ -23,6 +23,7 @@ function Notice.new(ui)
 	local function connect(signal, fn) table.insert(self.connections, signal:Connect(fn)) end
 	connect(ui:GetAttributeChangedSignal("WB_SubtitlesEnabled"), function() self:_refreshSubtitle() end)
 	connect(ui:GetAttributeChangedSignal("WB_MenuOpen"), function() self:_refreshSubtitle(); self:_refresh() end)
+	connect(ui:GetAttributeChangedSignal("WB_ReturnNoticeActive"), function() self:_refreshSubtitle(); self:_refresh() end)
 	connect(ui:GetAttributeChangedSignal("WB_PresentationProfile"), function() self:_refresh() end)
 	connect(ui:GetAttributeChangedSignal("WB_ReducedMotion"), function() self:_refreshMotion() end)
 	connect(GuiService:GetPropertyChangedSignal("ReducedMotionEnabled"), function() self:_refreshMotion() end)
@@ -35,12 +36,13 @@ function Notice.new(ui)
 end
 
 function Notice:_busy()
-	return self.ui:GetAttribute("WB_MenuOpen") == true or self.subtitle.Visible or self.ui.InteractionUI.FR_PromptBar.Visible
+	return self.ui:GetAttribute("WB_ReturnNoticeActive") == true or self.ui:GetAttribute("WB_MenuOpen") == true or self.subtitle.Visible or self.ui.InteractionUI.FR_PromptBar.Visible
 end
 function Notice:_refreshSubtitle()
 	if self.dead then return end
 	self.subtitle.Visible = self.ui:GetAttribute("WB_SubtitlesEnabled") ~= false
-		and self.ui:GetAttribute("WB_MenuOpen") ~= true and os.clock() < (self.subtitleExpires or 0)
+		and self.ui:GetAttribute("WB_MenuOpen") ~= true and self.ui:GetAttribute("WB_ReturnNoticeActive") ~= true
+		and os.clock() < (self.subtitleExpires or 0)
 end
 function Notice:_refreshMotion()
 	if self.dead or not Effects.Reduced(self.ui) then return end

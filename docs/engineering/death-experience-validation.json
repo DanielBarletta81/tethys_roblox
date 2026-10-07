@@ -1,0 +1,150 @@
+{
+  "recordedAt": "2026-10-06",
+  "buildCard": "26G",
+  "status": "Validated Studio prototype; session state only",
+  "policy": {
+    "portableGroups": 21,
+    "failed": 0,
+    "lifeCap": 18,
+    "tenMinuteBudget": 36,
+    "minimumActiveSeconds": 30,
+    "minimumDistanceStuds": 96,
+    "minimumCells": 3
+  },
+  "rest": {
+    "engineGroups": 16,
+    "failed": 0,
+    "supportedSharedSites": [
+      "Camp_A_CreekShelf",
+      "Camp_B_RootRise"
+    ],
+    "disabledUnsupportedSite": "Camp_C_RockLedge",
+    "terrainFixture": "Eight previously empty Water voxels, restored to their original values"
+  },
+  "ui": {
+    "clientGroups": 7,
+    "failed": 0,
+    "cueSeconds": 6,
+    "widthAtTestViewport": 420,
+    "height": 82,
+    "capturesInput": false,
+    "reducedMotionChecked": true
+  },
+  "bridge": {
+    "nativeGroups": 4,
+    "failed": 0,
+    "existingCapabilitySettingsUnchanged": true,
+    "serverOnly": true
+  },
+  "assistedNative": {
+    "actualPromptHolds": true,
+    "materialsSuppliedForFixture": true,
+    "sixCampPiecesBuilt": true,
+    "waterRationConsumed": true,
+    "walkActiveSeconds": 54.47946691676043,
+    "walkDistanceStuds": 727.6279358267784,
+    "walkCells": 24,
+    "deathBonus": 11,
+    "ordinaryXPForCompositionCheck": 18,
+    "playerTotalXP": 29,
+    "legacyCounterAfterDeath": 18,
+    "returnedToValidRest": true,
+    "knowledgeRetained": true,
+    "homePreserved": true,
+    "maxHealthAfterReturn": 100,
+    "menuClosedOnDeath": true,
+    "toastsAndSpeechSuppressedDuringCue": true,
+    "nextSpawnDeathBonus": 0,
+    "coldRestReturnedToOpeningFallback": true,
+    "freshLifeDistance": 0,
+    "freshLifeActiveSeconds": 0
+  },
+  "sourceVerification": {
+    "matchedStudioSources": 16,
+    "publicSourceHashes": [
+      {
+        "path": "src/ReplicatedStorage/WildboundUI/Controllers/NoticeController.luau",
+        "sha256": "3625a699a7db57ddd0fdf09ccb7aaa2a3f94892783e3c2c7631a69c1457b0de5"
+      },
+      {
+        "path": "src/ReplicatedStorage/WildboundUI/Controllers/ReturnController.luau",
+        "sha256": "bb95a7df040baf4acb185ed6f47f23858f7a0eaabcede64ee161924cdecf29e5"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/CampRestKit.luau",
+        "sha256": "55ca0c3cacabe2b2ccf327f7539dbf6c998c894fd592c019d0e8e49218f4f65d"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/Config.luau",
+        "sha256": "85dfc17fa79cd18d73c4d1f5a9edd3580ccf18ec207a53e429434c6a27c7eb06"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/Ledger.luau",
+        "sha256": "a30cf8dd34e6b15d6a84819701fef7ae5a24883e1f72f4705bf24235f300eef7"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/Policy.luau",
+        "sha256": "0bc2a70fdf6251ff9f6b12898505fb2a9ba23ec7a67e8c4e3adc589d040d3f2a"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/RestService.luau",
+        "sha256": "1e6204c525c6e38bb113429a2c4bd0d23978198bcd16cb11fc0685f92f395fba"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/Service.luau",
+        "sha256": "f4c77830126bbd37ddbbdd54057f8f40bfd8e36662b519403d0edb323cb07c3e"
+      },
+      {
+        "path": "src/ServerScriptService/DeathExperience/WorldContext.luau",
+        "sha256": "36de8a70d7964345b760c0d04371a84378ff3f6b2f1512eefdd4154f512a8b43"
+      },
+      {
+        "path": "src/ServerScriptService/OrdovicOpening/Controller.luau",
+        "sha256": "af55464016291719aa561d838186f7d17d5c722ae92f6cbe111fb106c4cb42b2"
+      },
+      {
+        "path": "src/ServerScriptService/OrdovicOpening/CordgeController.luau",
+        "sha256": "94c2b91a3d5b7767a7d666a4cb98f7e92c1157ae291926f193a7a07c2950e87f"
+      },
+      {
+        "path": "src/ServerScriptService/OrdovicOpening/ExperienceBridge.luau",
+        "sha256": "662547a5ca4052381f1a43e04dcb7082948614b22c16ca26294b9e37ef93728b"
+      },
+      {
+        "path": "src/ServerScriptService/OrdovicOpening/HazardService.luau",
+        "sha256": "f17c68b37c1a0f49cbec6b15f580ec2fe811132f387cbad7e10cf7c2e15de2d1"
+      },
+      {
+        "path": "src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau",
+        "sha256": "34dcd5d060fa033180efa55a752fdc1ab7ff4b173dd722ac520243595d74efb6"
+      }
+    ]
+  },
+  "cleanStartup": {
+    "openingPhase": "CAVE_WAKE",
+    "playerXP": 0,
+    "fixtureHooksRemoved": true,
+    "newSystemErrors": 0,
+    "existingWarnings": [
+      "Two missing legacy water audio beds"
+    ]
+  },
+  "limitations": [
+    "Full unassisted route not accepted",
+    "Multi-client, physical controller and mobile acceptance pending",
+    "XP, evidence and Rest are session state; no rejoin persistence",
+    "Six-piece shared camp adapter, not the complete fifteen-piece Fieldhold builder",
+    "WaterSkin is a prototype filled ration; reusable containers and weather/hydrology simulation deferred",
+    "Rock Ledge needs nearby stable ground correction"
+  ],
+  "portableCI": {
+    "trackedFiles": 125,
+    "compiledLuauSources": 99,
+    "syntaxFailures": 0,
+    "cordgePolicyGroups": 6,
+    "deathPolicyGroups": 21,
+    "terrainPluginGroups": 15,
+    "repositoryAuditPassed": true,
+    "pluginModelRoundTripPassed": true
+  }
+}

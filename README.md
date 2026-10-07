@@ -12,6 +12,7 @@ A Luau code portfolio for **Wildbound**, a prehistoric exploration and survival 
 | Tethys Terrain 0.1 | Seeded terrain authoring with a read-only preview, bounded edits and sculpt-safe cleanup | [heightfield](plugins/TethysTerrain/Modules/Heightfield.luau), [edit policy](plugins/TethysTerrain/Modules/EditSession.luau), [plugin guide](docs/engineering/tethys-terrain.md) |
 | Ordovic opening | Apply downstream force while preserving lateral steering; hold and release a deliberate intake choice | [FlowMath](src/ServerScriptService/OrdovicOpening/FlowMath.luau), [IntakeService](src/ServerScriptService/OrdovicOpening/IntakeService.luau), [Controller](src/ServerScriptService/OrdovicOpening/Controller.luau) |
 | Cordge observations | Reject invalid inspections and control one-shot dialogue, priority and per-player state | [CordgeController](src/ServerScriptService/OrdovicOpening/CordgeController.luau), [policy](src/ServerScriptService/OrdovicOpening/CordgePolicy.luau), [policy tests](tests/CordgePolicy.spec.luau) |
+| Death as experience | Reward meaningful exploration without spawn farming; return through one validated Rest owner | [policy](src/ServerScriptService/DeathExperience/Policy.luau), [ledger](src/ServerScriptService/DeathExperience/Ledger.luau), [build notes](docs/engineering/death-experience.md) |
 | Contextual HUD | Keep gameplay authoritative while presenting prompts, bounded notices and accessible transitions | [runtime binder](src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau), [NoticeController](src/ReplicatedStorage/WildboundUI/Controllers/NoticeController.luau), [effects tests](tests/UIRuntime.effects.playtest.luau) |
 
 The module layout follows Roblox services. Stateful services use small object instances; math, configuration and presentation policy remain separate. Existing owner integrations are provided as `.integration.txt` recipes, not substitutes for complete scripts.
@@ -21,6 +22,7 @@ The module layout follows Roblox services. Stateful services use small object in
 - Scatter uses a stable asset ordering, seed `20261005`, category slope limits, scaled footprints and pass metadata. Replacement preserves the old pass on failure; Clear requires matching ownership. Spacing is within a pass, so interactions with other passes still need visual review.
 - Native intake holds reach existing server handlers. Movement is restored on release, and unfinished rejection has its own session respawn destination.
 - Cordge checks distance, walls, life, target ownership and duplicates. Observations support sparse authored speech without introducing quest rewards.
+- Death experience adds a contextual bonus capped at 18 XP per life and 36 per ten minutes. Valid Rest takes precedence over the opening fallback; knowledge and homes survive death. Ordinary route XP still contributes to the player total.
 - HUD1.3 keeps Game1 quiet, preserves server title captions, gives speech/prompts priority and supports reduced motion. Location cards use a 0.65-second fade in, 1.5-second hold and 0.85-second fade out. Approved 3D portraits have a static menu adapter; no finished models are bundled.
 
 ## Validation
@@ -31,7 +33,8 @@ The module layout follows Roblox services. Stateful services use small object in
 | Scatter v1 | 14 Studio test groups; seeded Terrain placement and Clear/Undo checked | Cross-pass exclusion and clustering are deferred |
 | Opening/Cordge | 23 unit groups, 11 live Cordge groups, two subtitle ownership checks | Assisted checks do not establish a complete unassisted route |
 | Water readability | Eight live groups; 102 cues sampled actual Terrain water | A route prototype, not a watershed simulation |
-| Portable CI | Reuses the six Cordge policy cases; compiles all Luau sources/tests/tools; checks repository contents and links | Engine, Terrain, prompts and UI rendering require Studio |
+| Death/Rest 26G | 21 portable policy groups, 16 Rest engine groups, seven return-UI groups and assisted native death/return checks | Session persistence; Rock Ledge awaits ground correction; see the build notes |
+| Portable CI | Reuses the six Cordge policy cases and 21 death-experience groups; compiles all Luau sources/tests/tools; checks repository contents and links | Engine, Terrain, prompts and UI rendering require Studio |
 | Terrain plugin 0.1 | 15 portable groups and nine native Terrain groups; model source round-trip | Dock interaction and plugin-owned Undo/Redo await local installation; see the plugin guide |
 
 These are separate dated checkpoints, not one combined test total. See [testing and evidence](docs/engineering/testing.md), [recorded validation](docs/engineering/validation.json), and [setup](docs/engineering/setup.md).
