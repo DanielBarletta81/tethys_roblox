@@ -1,0 +1,233 @@
+{
+  "checkpoint": "Stratum 0.1: Studio terrain archives + R1B planning",
+  "date": "2026-10-09",
+  "scope": "Local authoring plugin in the confirmed Wildbound development place; no runtime streaming framework.",
+  "portable": {
+    "passed": 22,
+    "test": "tests/Stratum.spec.luau",
+    "luauVersion": "0.741",
+    "checks": [
+      "STV1 material/solid/liquid fidelity and deterministic f32 encoding",
+      "bounded dense/RLE formats and invalid-input rejection",
+      "canonical Base64 and decompression bounds",
+      "negative/global-grid chunk slicing and selection limits",
+      "authored R1B zones, guide limits and reserved routes",
+      "read-only capture, busy/edit/cancel guards and stale-source rejection",
+      "pending edits run before the final serial save recheck"
+    ]
+  },
+  "engineFixture": {
+    "CaptureSeconds": 0.022234124946407974,
+    "PluginUndoTested": false,
+    "WaterCells": 129,
+    "StoredTextBytes": 6892,
+    "Passed": 12,
+    "Restored": true,
+    "SolidCells": 439,
+    "RecordingRefusalTested": true,
+    "Groups": [
+      "native solid/liquid channels and full material IDs",
+      "native read-only preview across global chunk edges",
+      "native archive StringValues clone and read",
+      "native Terrain reconstruction preserves actual quantized channels",
+      "archive rejects changed identity, bounds and payload",
+      "unknown or Water solid IDs fail native expansion",
+      "native source edit blocks stale archive save",
+      "selected bounds snap outward without modifying the Part",
+      "native R1B guides are owned noninteractive planning geometry",
+      "maximum R1B tile avoids native Part size clamping",
+      "remove rejects unrelated selection before recording",
+      "recording refusal leaves no archive or live guides"
+    ],
+    "ReservedMarkers": 3,
+    "HighMaterialIdCells": 512,
+    "EncodedBytes": 5168,
+    "LiveGuidesCreated": false,
+    "GuideParts": 22,
+    "test": "tests/Stratum.studio.luau",
+    "context": "Edit; fresh module clones; two initially empty 32-stud Terrain boxes",
+    "boundsMin": [
+      [
+        12152,
+        4000,
+        12000
+      ],
+      [
+        12280,
+        4000,
+        12000
+      ]
+    ],
+    "boundsSize": [
+      32,
+      32,
+      32
+    ],
+    "notes": [
+      "Results compare actual native quantized voxel channels, not analytical heights.",
+      "PluginUndoTested=false refers only to this connector-owned fixture; installed acceptance is separate."
+    ]
+  },
+  "installedPlugin": {
+    "installed": true,
+    "installation": "StratumLocalInstall.rbxmx",
+    "entryPoints": 1,
+    "modules": 11,
+    "exactSourceMatch": true,
+    "assistedChecks": 12,
+    "checks": [
+      {
+        "name": "Installed dock opens from Plugins -> Tethys -> Stratum",
+        "passed": true
+      },
+      {
+        "name": "Native archive preview, save and validation controls",
+        "passed": true,
+        "voxels": 512,
+        "chunks": 2,
+        "encodedBytes": 72,
+        "storedBase64Bytes": 96,
+        "dataset": "Empty native Terrain; RLE test, not a typical world compression benchmark"
+      },
+      {
+        "name": "Archive save Undo removes the owned root; Redo restores a valid archive",
+        "passed": true
+      },
+      {
+        "name": "Selection updates preserve the successful Save result",
+        "passed": true
+      },
+      {
+        "name": "R1B preview and guide creation",
+        "passed": true,
+        "zones": 7,
+        "parts": 22,
+        "descendants": 44,
+        "reservedMarkers": 3,
+        "boundsMin": [
+          12000,
+          4000,
+          12000
+        ],
+        "boundsSize": [
+          1024,
+          256,
+          1024
+        ]
+      },
+      {
+        "name": "Guide creation Undo removes the pass; Redo restores identity and descendants",
+        "passed": true
+      },
+      {
+        "name": "Manual content prevents removal in the final plugin",
+        "passed": true
+      },
+      {
+        "name": "Guide removal Undo restores 22 Parts and outlines; Redo detaches again",
+        "passed": true,
+        "restoredOutlineAdorneeVerified": true,
+        "noninteractivePropertiesVerified": true
+      },
+      {
+        "name": "Archive removal Undo restores exact manifest and both StringValue payloads; Redo detaches again",
+        "passed": true
+      },
+      {
+        "name": "Remove refuses an unrelated bounds Part and preserves the remaining archive",
+        "passed": true
+      },
+      {
+        "name": "Moved regional bounds require a new R1B preview",
+        "passed": true
+      },
+      {
+        "name": "Cancel invalidates a completed capture and blocks Save",
+        "passed": true
+      }
+    ],
+    "latestCaptureSaveRecheck": {
+      "Id": "0dec3778-9864-49c5-aa6a-8480a8fd6a01",
+      "Stats": {
+        "Chunks": 2,
+        "DenseBytes": 5168,
+        "EncodedBytes": 72,
+        "Voxels": 512,
+        "StoredTextBytes": 96
+      },
+      "Pass": true
+    },
+    "sourceContext": "Installed plugin owns native recording; no fake Undo service or added project capabilities.",
+    "interactionLimit": "Computer-assisted input; user enlarged the restored floating panel. Not an unassisted usability study."
+  },
+  "sourceAndCleanup": {
+    "SourceFilesMatched": 13,
+    "EntryDisabled": true,
+    "Archives": 0,
+    "GuidePasses": 0,
+    "TestVoxelsEmpty": true,
+    "StreamingEnabled": true,
+    "sourceArchive": "ServerStorage.StratumPlugin",
+    "sourceArchiveTests": "ServerStorage.StratumPlugin.Tests.EngineFixture",
+    "remainingOwnedRoots": [
+      "ServerStorage.StratumArchives (empty)",
+      "Workspace.Generated.StratumR1B (empty)"
+    ],
+    "temporaryInstallAndUIFixturesRemoved": true
+  },
+  "defectsFoundAndFixed": [
+    "Engine fixture initially passed ReadVoxelChannels.Size to WriteVoxelChannels. Writes now project only valid channels; both initially empty boxes were restored and verified before rerunning.",
+    "Native Parts clamp to 2048 studs. R1B limits now prevent silent geometry clamping; maximum tile exercised.",
+    "SelectionChanged erased successful operation messages. A separate selection label preserves status.",
+    "Destroy prevented native Undo from restoring removed hierarchy. Removal now detaches the original owned instance; installed guide/archive Undo and Redo passed.",
+    "Yielding between source rechecks could miss an edit to an earlier chunk. Save yields before its bounded serial recheck; regression test added."
+  ],
+  "limits": [
+    "R1B orientation is a provisional sketch, not site-specific Sky City authoring.",
+    "Production archive capture does not write or restore Terrain.",
+    "No multiplayer lifecycle, Actors, RemoteFunction, anti-scraping guarantee, comparative runtime benchmark or public release.",
+    "Syntax compilation and strict annotations do not establish full Roblox type analysis.",
+    "No redistribution license selected."
+  ],
+  "evidence": [
+    "docs/media/stratum-archive.jpg",
+    "docs/media/stratum-r1b.jpg"
+  ],
+  "ci": {
+    "status": "passed",
+    "trackedFiles": 147,
+    "luauSourcesCompiled": 115,
+    "compileScope": "Syntax only; no Roblox type/engine analysis",
+    "portableGroups": {
+      "Cordge": 6,
+      "DeathExperience": 21,
+      "TethysTerrain": 15,
+      "Stratum": 22
+    },
+    "repositoryAudit": "Curated file policy, credential-pattern scan, JSON parse and relative documentation links passed",
+    "packaging": "TethysTerrain and Stratum exact source round-trip passed"
+  },
+  "sourceSha256": {
+    "plugins/Stratum/Modules/ArchiveStorage.luau": "d9703b15d4be731d62cf8d10f23cf63204d90341ed495e2263c62642b0bac880",
+    "plugins/Stratum/Modules/Base64.luau": "50d79d08b0d1ccb8c4f6407156e73a5e98f8f54d518510ecda4c6c7e85f6ae42",
+    "plugins/Stratum/Modules/Capture.luau": "d773a960f3982eb644dde2a4ed1181748e48b7b64abb961180a16de42f842d7a",
+    "plugins/Stratum/Modules/ChunkGrid.luau": "3b567925cab56c7bd37f580f8897afa3903ec90dcf6012a90d61be520fc280aa",
+    "plugins/Stratum/Modules/Panel.luau": "3ab59af41c2ef8448439ee45432b849cb1baca861b106bf7da96cb711d9f0c66",
+    "plugins/Stratum/Modules/R1BGuides.luau": "8f5c5c91fb9314c672d3da7ab243e461c8e8f92ff985896ffecaaa9fe90915ef",
+    "plugins/Stratum/Modules/R1BPlan.luau": "bb614301c8ff9d901f7866c18f7ac0f4fa05ea2b5770e30b2d0634761b23fead",
+    "plugins/Stratum/Modules/RobloxBackend.luau": "aaa4e06bbea0ea9283a32980c70a73e9fae4c9f40429c2251ed775df43c25d67",
+    "plugins/Stratum/Modules/Session.luau": "0d2b059455090ef860d542bf0adc23fc2334c8263b75e16168c1099a480bdbd5",
+    "plugins/Stratum/Modules/VoxelCodec.luau": "61dd38e69e441ec503b4875e18f618ea14888ce69ea83dc1758400288b8aff73",
+    "plugins/Stratum/Modules/VoxelMatrix.luau": "4583583f91a5964ef01f3f74c84f0cef538450f4bdc8f3b554c8cbf0fa72eca5",
+    "plugins/Stratum/init.server.luau": "37619f9848b30405a8415e0d438f964e4dfd0f5aaa390b49ec190819d49f5ca8",
+    "tests/Stratum.spec.luau": "9e557a8d750634b1318c74e98f8c1d55c09b0d33cecb23494b83c8f10d271d9c",
+    "tests/Stratum.studio.luau": "32238fafb9344dcedd49e54b49a9c8e5c937b774849ae758678a6bfddb367d48"
+  },
+  "packaging": {
+    "artifact": "output/stratum-plugin/Stratum.rbxmx",
+    "entryPoints": 1,
+    "modules": 11,
+    "exactSourceRoundTrip": true,
+    "sha256": "994864aa095e197d2da98d8446e6bbe8ab31e81948c01851ce9d6e8bcc84b119"
+  }
+}

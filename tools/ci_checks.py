@@ -115,7 +115,9 @@ def main():
     cordge_policy(args.luau_dir.resolve())
     print(run([str(args.luau_dir.resolve() / 'luau'), 'tests/DeathExperience.spec.luau']).strip())
     print(run([str(args.luau_dir.resolve() / 'luau'), 'tests/TethysTerrain.spec.luau']).strip())
+    print(run([str(args.luau_dir.resolve() / 'luau'), 'tests/Stratum.spec.luau']).strip())
     print(run(['python3', 'tools/package_terrain_plugin.py']).strip())
+    print(run(['python3', 'tools/package_terrain_plugin.py', '--plugin', 'Stratum']).strip())
 
 
 if __name__ == '__main__':

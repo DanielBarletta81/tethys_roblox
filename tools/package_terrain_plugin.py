@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "plugins/TethysTerrain"
 
 
 def item(parent, class_name, name, source=None):
@@ -16,27 +15,32 @@ def item(parent, class_name, name, source=None):
     return node
 
 
-def build(output):
+def build(output, plugin_name="TethysTerrain"):
+    source_root = ROOT / "plugins" / plugin_name
+    expected = {"TethysTerrain": 8, "Stratum": 11}[plugin_name]
     model = ET.Element("roblox", {"version": "4"})
-    entry = item(model, "Script", "TethysTerrain", (SOURCE / "init.server.luau").read_text())
+    entry = item(model, "Script", plugin_name, (source_root / "init.server.luau").read_text())
     modules = item(entry, "Folder", "Modules")
-    for path in sorted((SOURCE / "Modules").glob("*.luau")):
+    for path in sorted((source_root / "Modules").glob("*.luau")):
         item(modules, "ModuleScript", path.stem, path.read_text())
     output.parent.mkdir(parents=True, exist_ok=True)
     ET.indent(model)
     ET.ElementTree(model).write(output, encoding="utf-8", xml_declaration=True)
     parsed = ET.parse(output)
     contents = parsed.findall(".//Item[@class='ModuleScript']")
-    assert len(contents) == 8, "Expected eight modular plugin components"
+    assert len(contents) == expected, f"Expected {expected} modular plugin components"
     for node in contents:
         name = node.find("Properties/string[@name='Name']").text
         source = node.find("Properties/ProtectedString[@name='Source']").text
-        assert source == (SOURCE / "Modules" / f"{name}.luau").read_text()
-    assert parsed.find("./Item/Properties/ProtectedString[@name='Source']").text == (SOURCE / "init.server.luau").read_text()
+        assert source == (source_root / "Modules" / f"{name}.luau").read_text()
+    assert parsed.find("./Item/Properties/ProtectedString[@name='Source']").text == (source_root / "init.server.luau").read_text()
     print(f"Built {output}: one plugin entry point, {len(contents)} separate modules; source round-trip passed.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "output/terrain-plugin/TethysTerrain.rbxmx")
-    build(parser.parse_args().output)
+    parser.add_argument("--plugin", choices=("TethysTerrain", "Stratum"), default="TethysTerrain")
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    destination = args.output or ROOT / "output" / ("terrain-plugin" if args.plugin == "TethysTerrain" else "stratum-plugin") / f"{args.plugin}.rbxmx"
+    build(destination, args.plugin)

@@ -17,6 +17,8 @@ Profile the complete slice for instance counts, frame time, server work and stre
 
 ## Tool publication and later features
 
+The selected immediate tooling milestone is **Studio terrain tools + R1B planning**. [Stratum 0.1](stratum.md) supplies bounded voxel archives and a Sky City/Cimmeria guide sketch; the [tool suite roadmap](tool-suite-roadmap.md) keeps site-specific landform/traversal work ahead of speculative runtime streaming or automatic legacy rewrites.
+
 Tethys Terrain 0.1 is implemented as a modular local Studio plugin. Finish the installed dock/Undo acceptance check, then author one useful river valley before considering hydraulic erosion, stitching or a node editor. See its [guide and evidence](tethys-terrain.md). Creator Store publication remains a separate decision.
 
 Nature Scatter v1 is a candidate for a separately licensed standalone tool, after clarifying source-asset dependencies and producing a clean demonstration fixture. A DevForum release would be a separate publication task with documentation and limitations.

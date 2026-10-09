@@ -10,6 +10,7 @@ A Luau code portfolio for **Wildbound**, a prehistoric exploration and survival 
 | --- | --- | --- |
 | Nature Scatter v1 | Repeatable environment placement that can be safely regenerated and cleared | [NatureScatter](src/ReplicatedStorage/Tethys/WorldModules/Scatter/NatureScatter.luau), [asset placement](src/ReplicatedStorage/Tethys/WorldModules/Scatter/AssetPlacement.luau), [Studio tests](tests/NatureScatter.spec.luau) |
 | Tethys Terrain 0.1 | Seeded terrain authoring with a read-only preview, bounded edits and sculpt-safe cleanup | [heightfield](plugins/TethysTerrain/Modules/Heightfield.luau), [edit policy](plugins/TethysTerrain/Modules/EditSession.luau), [plugin guide](docs/engineering/tethys-terrain.md) |
+| Stratum 0.1 | Preserve solid/water voxel data in bounded archives and preview authored R1B landform guides | [codec](plugins/Stratum/Modules/VoxelCodec.luau), [capture lifecycle](plugins/Stratum/Modules/Session.luau), [plugin guide](docs/engineering/stratum.md) |
 | Ordovic opening | Apply downstream force while preserving lateral steering; hold and release a deliberate intake choice | [FlowMath](src/ServerScriptService/OrdovicOpening/FlowMath.luau), [IntakeService](src/ServerScriptService/OrdovicOpening/IntakeService.luau), [Controller](src/ServerScriptService/OrdovicOpening/Controller.luau) |
 | Cordge observations | Reject invalid inspections and control one-shot dialogue, priority and per-player state | [CordgeController](src/ServerScriptService/OrdovicOpening/CordgeController.luau), [policy](src/ServerScriptService/OrdovicOpening/CordgePolicy.luau), [policy tests](tests/CordgePolicy.spec.luau) |
 | Death as experience | Reward meaningful exploration without spawn farming; return through one validated Rest owner | [policy](src/ServerScriptService/DeathExperience/Policy.luau), [ledger](src/ServerScriptService/DeathExperience/Ledger.luau), [build notes](docs/engineering/death-experience.md) |
@@ -37,6 +38,7 @@ The module layout follows Roblox services. Stateful services use small object in
 | Death/Rest polish | Eight cue groups, five camp-prompt groups, four native prompt-priority groups; menu-key/button recovery and visual cave preview | [Checkpoint](docs/engineering/death-rest-polish-validation.json); controller mappings inspected, device acceptance remains open |
 | Portable CI | Reuses the six Cordge policy cases and 21 death-experience groups; compiles all Luau sources/tests/tools; checks repository contents and links | Engine, Terrain, prompts and UI rendering require Studio |
 | Terrain plugin 0.1 | 15 portable groups and nine native Terrain groups; model source round-trip | Dock interaction and plugin-owned Undo/Redo await local installation; see the plugin guide |
+| Stratum 0.1 | 22 portable groups, 12 native engine groups and 12 assisted installed-plugin checks; source/model round-trip | Native save/create/remove Undo/Redo verified; regional orientation and large-world profiling remain separate. See the [checkpoint](docs/engineering/stratum-validation.json) |
 
 These are separate dated checkpoints, not one combined test total. See [testing and evidence](docs/engineering/testing.md), [recorded validation](docs/engineering/validation.json), and [setup](docs/engineering/setup.md).
 
@@ -50,7 +52,7 @@ These are separate dated checkpoints, not one combined test total. See [testing 
 
 ## Development
 
-[Architecture](docs/engineering/architecture.md) · [Setup](docs/engineering/setup.md) · [Roadmap](docs/engineering/roadmap.md) · [Mac terrain pipeline](docs/engineering/art-pipeline.md)
+[Architecture](docs/engineering/architecture.md) · [Setup](docs/engineering/setup.md) · [Roadmap](docs/engineering/roadmap.md) · [Mac terrain pipeline](docs/engineering/art-pipeline.md) · [Tool suite](docs/engineering/tool-suite-roadmap.md)
 
 World direction, design decisions and asset selection: **Daniel Barletta**. Implementation and review developed with Codex assistance. The code and validation limits are available for inspection; this baseline imports the existing prototype rather than inventing a historical commit timeline.
 
