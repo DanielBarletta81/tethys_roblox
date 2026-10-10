@@ -2,6 +2,8 @@
 
 The prototype extends an existing Roblox place. This export includes the new opening, cave/Cordge services, Scatter and HUD; older RuntimeService, inventory/knowledge owners and the authored StarterGui/world hierarchy are external dependencies. Integration recipes make the narrow owner changes reviewable.
 
+The regional-world handoff adds a planned multi-Place layer around those owners. A 2026-10-09 read-only Studio audit confirmed separate legacy knowledge owners and a disabled SaveService; [regional integration notes](regional-world-sprint.md) describe the reconciliation work. Regional travel and durable cross-Place progression are not implemented by the current export.
+
 ```mermaid
 flowchart LR
     Build[ServerStorage builders] --> World[Authored opening geometry and Terrain]

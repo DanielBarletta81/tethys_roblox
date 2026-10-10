@@ -1,3 +1,4 @@
+if not game:GetService("RunService"):IsStudio() then return end
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 

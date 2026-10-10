@@ -25,6 +25,7 @@ The HUD also requires the existing `StarterGui.TethysUI` hierarchy. Theme and In
 | Stratum.spec.luau | Standalone Luau | Real codec, grid, R1B plan and session modules; included in portable CI |
 | Stratum.studio.luau | Edit | Stratum Modules folder and two initially empty native Terrain boxes; restores channels and fixtures |
 | OrdovicOpening.spec.luau / CordgePolicy.spec.luau / OrdovicDryLanding.spec.luau | Edit or appropriate server harness | Opening modules and their documented detached fixtures |
+| RaisedRoutes.studio.luau | Edit, read-only | Separately prepared raised stage or its committed opening; see the raised-route report |
 | CordgeRuntime.playtest.luau / OrdovicWaterSurface.playtest.luau | Server Play | Built opening, live player, server runtime; read test prerequisites |
 | UIRuntime.spec.luau / UIRuntime.art.spec.luau | Edit | Existing UI hierarchy and modules; detached GUI fixtures |
 | UIRuntime.effects.playtest.luau / layout / profile / bindings | Client Play | Initialized TethysUI and real runtime binder |

@@ -6,6 +6,7 @@ local Hazard = require(script.Parent.HazardService)
 local Stryker = require(script.Parent.StrykerService)
 local Checkpoint = require(script.Parent.CheckpointService)
 local Rest = require(script.Parent.ExperienceBridge)
+local Progress = require(script.Parent.RouteProgressService)
 local Controller = {}
 function Controller.CanLand(state, landing)
 	local h = state.Humanoid
@@ -42,6 +43,9 @@ function Controller.Start(root)
 		if Rest.TryRespawn(player, character) then
 			state.Landed = true; player:SetAttribute("WB_OrdovicActive", false)
 			player:SetAttribute("OpeningPhase", "FIELDHOLD_RETURN")
+		elseif Progress.Respawn(root,player,character) then
+			state.Landed=true;player:SetAttribute("WB_OrdovicActive",false)
+			player:SetAttribute("OpeningPhase","ROUTE_CHECKPOINT_RETURN")
 		elseif choice == "CITY" then
 			state.Landed = true; player:SetAttribute("WB_OrdovicActive", false)
 			player:SetAttribute("OpeningPhase", "INTAKE_WORKS")

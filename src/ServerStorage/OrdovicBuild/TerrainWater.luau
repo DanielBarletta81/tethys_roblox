@@ -7,17 +7,22 @@ local function bounds(part)
 	end end end
 	return Region3.new(lo,hi):ExpandToGrid(4)
 end
-function Water.Fill(volumes,backupFolder)
+function Water.Preflight(volumes)
 	local regions={}
 	-- Preflight every cell before changing any terrain, including overlapping boxes.
 	for _,p in ipairs(volumes:GetChildren()) do
 		local region=bounds(p)
-		local materials,occupancy=workspace.Terrain:ReadVoxels(region,4)
-		for x=1,#materials do for y=1,#materials[x] do for z=1,#materials[x][y] do
-			assert(occupancy[x][y][z]==0,"Existing terrain intersects "..p.Name.."; no terrain was written")
+		local channels=workspace.Terrain:ReadVoxelChannels(region,4,{"SolidOccupancy","LiquidOccupancy"})
+		local solid,liquid=channels.SolidOccupancy,channels.LiquidOccupancy
+		for x=1,#solid do for y=1,#solid[x] do for z=1,#solid[x][y] do
+			assert(solid[x][y][z]==0 and liquid[x][y][z]==0,"Existing terrain intersects "..p.Name.."; no terrain was written")
 		end end end
 		table.insert(regions,{Part=p,Region=region})
 	end
+	return regions
+end
+function Water.Fill(volumes,backupFolder)
+	local regions=Water.Preflight(volumes)
 	for _,item in ipairs(regions) do
 		local min=item.Region.CFrame.Position-item.Region.Size/2
 		local max=item.Region.CFrame.Position+item.Region.Size/2

@@ -1,5 +1,11 @@
 # Engineering roadmap
 
+## Regional world sprint alignment
+
+The 2026-10-09 handoff establishes **one Experience, multiple regional Places**, with Sky City -> wilderness route -> Watcher as the first travel proof. Daniel continues authoring terrain, structures, story and art. See the [handoff audit and integration plan](regional-world-sprint.md) for existing owners, missing foundations and acceptance boundaries.
+
+The next coding milestone is regional configuration, tagged-marker validation and mockable server travel/arrival handling. Persistence ownership must be designed alongside this foundation so the eventual live handoff retains knowledge and Rest. The existing Ordovic/Cordge slice and death-experience behavior remain in place; a developer's Sky City travel test does not change the live opening spawn.
+
 ## Complete the current vertical slice
 
 1. Place the first civic reveal after readable human engineering, at an actual inhabited view. Keep recovery and capture free of a success/title banner.

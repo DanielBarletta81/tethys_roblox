@@ -38,6 +38,7 @@ function Data.Profile(player, ui)
 	-- An explicit client preview wins; the place setting follows real onboarding.
 	local override = ui:GetAttribute("WB_HUDProfile")
 	if override == "Game1" or override == "Exploration" then return override end
+	if (Data.Number(player:GetAttribute("WB_Chapter")) or 1)>=2 then return "Exploration" end
 	local configured = script.Parent:GetAttribute("HUDProfile")
 	if configured == "Game1" and player:GetAttribute("SC_OnboardingStage") ~= "CityOpen"
 		and player:GetAttribute("HW_Complete") ~= true then return "Game1" end

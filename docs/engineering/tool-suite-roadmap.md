@@ -12,7 +12,11 @@ Priority chosen on 2026-10-08: **Studio terrain tools + R1B planning**. Tools sh
 
 These tools retain separate responsibilities and module trees. No giant installer, required paid add-on or new runtime framework is introduced.
 
+The [regional-world handoff](regional-world-sprint.md) now supplies the runtime architecture direction: multiple Places within one Experience and lightweight vistas between regions. Terrain authoring tools remain separate from regional travel; the archive codec is not a substitute for that architecture.
+
 ## Next environment card: site-specific R1B
+
+Current authoring direction, 2026-10-09: Daniel will add native Terrain mountains around the geometry and has moved mountain blocks. Start with [geometry scale and clearances](geometry-scale.md) and the supplied [world-scale geographic references](world-scale-terrain.md); current spawn placement is provisional. Existing R1B sketches do not override these authored mountain positions.
 
 1. Survey the current Sky City/Weep build, water levels, shoreline and reserved routes. Choose an actual regional footprint and orient the provisional sketch.
 2. Preserve the working place; use an expendable empty authoring patch for the first macro landform. A Stratum archive is inspectable data, not a complete place backup or a shipped terrain-restore operation.
