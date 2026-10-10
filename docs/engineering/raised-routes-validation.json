@@ -2,34 +2,113 @@
   "date": "2026-10-10",
   "targetPlaceId": 72645647440721,
   "layoutVersion": "RaisedRoutes_20261010",
-  "status": "prepared_awaiting_exact_live_commit_approval",
-  "stage": "ServerStorage.OrdovicRaisedStage",
-  "descendants": 1145,
+  "status": "installed_validated_cloud_save_pending",
+  "descendants": 1159,
   "mainWaterLengthStuds": 5384.6463,
   "dryRouteLengthsStuds": {
     "G2_IntakeToCity": 1352.9251,
-    "WatcherSideDescent": 3271.4745,
-    "G2_OldWorksReturn": 1088.6652
+    "WatcherSideDescent": 3272.5857,
+    "G2_OldWorksReturn": 1216.4891
   },
   "checks": {
-    "structuralGroupsPassed": 10,
+    "structuralGroupsPassed": 12,
     "structuralGroupsFailed": 0,
     "initialDryPathWorldOverlapDefects": 14,
     "remainingDryPathWorldOverlapDefects": 0,
     "emptySolidAndLiquidWaterRegions": 123,
     "capabilitiesUnchanged": true,
-    "historicalPortableSuitePassed": true
+    "historicalPortableSuitePassed": true,
+    "nativeWaterCentersSampled": 123,
+    "missingLiquidAtCenter": 0,
+    "waterSurfaceEngineGroupsPassed": 8,
+    "waterSurfaceCues": 151,
+    "isolatedChapterUiGroupsPassed": 4,
+    "completeCommitUndoRedo": true,
+    "invalidAndDistantArrivalRejections": 3,
+    "walkingSegmentsChecked": 99,
+    "finalPolishUndoRedo": true,
+    "finalPolishUndoRedoWaypoints": 3,
+    "changedSourcesMatched": 4,
+    "currentPortableCi": {
+      "passed": true,
+      "trackedFiles": 166,
+      "luauSyntaxFiles": 126,
+      "cordgeGroups": 6,
+      "deathExperienceGroups": 21,
+      "terrainPluginGroups": 15,
+      "stratumGroups": 22,
+      "pluginSourceRoundTrips": 2,
+      "limit": "Syntax and portable policy checks; not Roblox type analysis or engine acceptance."
+    }
   },
   "notExercised": [
-    "live_layout_replacement",
-    "new_native_water_placement",
-    "unassisted_route_traversal",
-    "native_clear_hold_and_cancel",
-    "new_arrival_titles_and_checkpoint_reset",
-    "complete_commit_undo_redo",
-    "physical_controller_acceptance",
+    "full_unassisted_main_river_run",
+    "physical_xbox_and_touch_input",
+    "multi_client_and_large_world_streaming_profiling",
+    "cloud_save_confirmation",
     "public_game_release"
   ],
-  "publication": {"githubCliLogin": "expired", "githubPublished": false, "robloxPublished": false},
-  "scope": "Raised route graybox and integrations; not completed Games 1-3 or a production persistence implementation."
+  "publication": {
+    "githubCliLogin": "expired",
+    "githubPublished": false,
+    "robloxPublished": false,
+    "studioUiInspection": "cgWindowNotFound, then native pipe closed",
+    "cloudSaveConfirmed": false,
+    "saveApiAttempt": "Rejected: SavePlace can only be called from a server script"
+  },
+  "scope": "Raised route graybox and integrations; not completed Games 1-3 or a production persistence implementation.",
+  "activeRoot": "Workspace.WildboundOpening_Ordovic",
+  "live": {
+    "nativeIntakeEarlyCancel": true,
+    "nativeIntakeCityChoice": true,
+    "nativeIntakeRefusalChoice": true,
+    "nativeClearEarlyCancel": true,
+    "nativeClearCompletion": true,
+    "clearDebrisHiddenAndPromptDisabled": true,
+    "clearChangedFiveBypassSpeedsTo12": true,
+    "guidedRefusalFiveDropsAndDryRecovery": true,
+    "nativeCaveCluesInspected": 5,
+    "caveConnectorWetStepsAndOverlookWalked": true,
+    "cityTitleAndChapterUi": true,
+    "cityCheckpointDeathReturn": true,
+    "cityWalk": {
+      "targets": 24,
+      "seconds": 85.1983,
+      "passed": true,
+      "assistedStart": true,
+      "jumpsOrTeleportsBetweenTargets": false
+    },
+    "watcherWalk": {
+      "targets": 55,
+      "seconds": 208.8466,
+      "passed": true,
+      "guidedMoveTo": true,
+      "jumpsOrTeleportsBetweenTargets": false,
+      "start": "Reached recovery landing through guided native refusal swim."
+    },
+    "returnTunnelWalk": {
+      "targets": 23,
+      "seconds": 76.3093,
+      "passed": true,
+      "assistedStart": true,
+      "jumpsOrTeleportsBetweenTargets": false
+    },
+    "watcherTitleAndCheckpointDeathReturn": true
+  },
+  "defectsCorrected": [
+    "tunnel_wall_across_city_arrival",
+    "descent_inside_flat_recovery_landing",
+    "return_tunnel_through_drop_face",
+    "tunnel_sidewall_across_shared_watcher_departure",
+    "main_bank_trapping_refusal_mouth",
+    "stale_opening_hint_after_chapter_arrival"
+  ],
+  "evidenceScreenshot": "docs/media/raised-cordge-cave.jpg",
+  "knownWarnings": [
+    "Two existing lower-tier water audio instances are missing."
+  ],
+  "probeCorrections": [
+    "A first midpoint-based walking probe cut corners and did not verify height; it was discarded and replaced by supported segment-end targets.",
+    "A client-only Watcher snapshot failed because its distant Arrival was not streamed; the final successful probe used all targets captured read-only in Server."
+  ]
 }

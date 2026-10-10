@@ -72,7 +72,7 @@ function HUD.new(player, ui)
 	end
 	for _, attribute in ipairs({ "OL_Stamina", "OL_Hydration", "OL_PrettyWaterExposure" }) do player:GetAttributeChangedSignal(attribute):Connect(updateVitals) end
 	for _, attribute in ipairs({ "IL_Active", "IL_Title", "IL_Message", "IL_Step", "IL_RouteCount", "HW_Status", "HW_Message", "HW_Step", "HW_TotalSteps",
-		"OL_ObjectiveTrack", "OL_ObjectiveStep", "OL_ObjectiveDone", "WOT_NextPull", "WT_WaterStage", "WT_WaterStageLabel", "WT_WaterObjective", "WT_WaterStageIndex", "WT_WaterChainComplete", "SC_OnboardingStage", "HW_Complete" }) do
+		"OL_ObjectiveTrack", "OL_ObjectiveStep", "OL_ObjectiveDone", "WOT_NextPull", "WT_WaterStage", "WT_WaterStageLabel", "WT_WaterObjective", "WT_WaterStageIndex", "WT_WaterChainComplete", "SC_OnboardingStage", "HW_Complete", "WB_Chapter" }) do
 		player:GetAttributeChangedSignal(attribute):Connect(updateRoute)
 	end
 	ui:GetAttributeChangedSignal("WB_RouteHintsEnabled"):Connect(updateRoute)

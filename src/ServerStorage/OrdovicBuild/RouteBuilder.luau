@@ -1,5 +1,21 @@
 local U=require(script.Parent.BuildUtil)
 local Route={}
+function Route.OpenIntakeBypass(root)
+	local bank,lastLeg,lastPiece
+	for _,part in ipairs(root["02_RiverRoute"]:GetChildren())do
+		local leg,piece=part.Name:match("^BankMain_(%d+)_(%d+)_1$")
+		if leg then
+			leg,piece=tonumber(leg),tonumber(piece)
+			if not lastLeg or leg>lastLeg or leg==lastLeg and piece>lastPiece then bank,lastLeg,lastPiece=part,leg,piece end
+		end
+	end
+	assert(bank and bank:GetAttribute("Generator")=="OrdovicOpening" and bank:GetAttribute("BuildId")==root:GetAttribute("BuildId"))
+	if bank:GetAttribute("BypassMouthOpened") then return end
+	local trim=math.min(40,bank.Size.Z-4)
+	bank.Size=Vector3.new(bank.Size.X,bank.Size.Y,bank.Size.Z-trim)
+	bank.CFrame*=CFrame.new(0,0,trim/2)
+	bank:SetAttribute("BypassMouthOpened",true)
+end
 function Route.Build(root,plan)
 	local route=U.Folder(root,"02_RiverRoute")
 	local flow=U.Folder(root,"03_FlowZones")
@@ -73,6 +89,7 @@ function Route.Build(root,plan)
 	local dryLanding=plan.Landing+downstream*28
 	local landing=U.Part(cascade,"WatcherLanding",Vector3.new(60,8,60),CFrame.new(dryLanding+Vector3.new(0,3,0)),Enum.Material.Slate)
 	U.Guide(U.Folder(root,"00_Guides"),"GUIDE_WatcherLanding",dryLanding+Vector3.new(0,10,0))
+	Route.OpenIntakeBypass(root)
 	return terrainVolumes,landing
 end
 return Route

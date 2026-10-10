@@ -74,4 +74,29 @@ check("Reviewed capability sets have not grown",function()
 	}
 	for folder,caps in pairs(expected)do assert(folder.Sandboxed and tostring(folder.Capabilities)==caps)end
 end)
+check("Dry centerlines and turns have no blocking geometry",function()
+	local ray=RaycastParams.new();ray.RespectCanCollide=true
+	for _,route in ipairs(root["10_RouteConnections"]:GetChildren())do
+		local floors={}
+		for _,part in ipairs(route:GetChildren())do if part.Name:match("^Floor")then table.insert(floors,part)end end
+		table.sort(floors,function(a,b)return a.Name<b.Name end)
+		local last
+		for _,floor in ipairs(floors)do
+			local a=floor.CFrame:PointToWorldSpace(Vector3.new(0,1.5,floor.Size.Z/2-2))+Vector3.new(0,4,0)
+			local b=floor.CFrame:PointToWorldSpace(Vector3.new(0,1.5,-floor.Size.Z/2+2))+Vector3.new(0,4,0)
+			for _,segment in ipairs({{a,b},{last or a,a}})do
+				local hit=workspace:Raycast(segment[1],segment[2]-segment[1],ray)
+				assert(not hit,hit and route.Name.." / "..floor.Name.." blocked by "..hit.Instance:GetFullName())
+			end
+			last=b
+		end
+	end
+end)
+check("Refusal handoff has an open swimming lane",function()
+	local zone=root["03_FlowZones"].FZBypass_1
+	local mouth=root["00_Guides"].GUIDE_BypassMouth.Position
+	local ray=RaycastParams.new();ray.RespectCanCollide=true;ray.IgnoreWater=true
+	local hit=workspace:Raycast(mouth,zone.CFrame.LookVector*35,ray)
+	assert(not hit,hit and "Bypass mouth blocked by "..hit.Instance:GetFullName())
+end)
 return results

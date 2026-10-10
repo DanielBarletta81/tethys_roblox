@@ -59,7 +59,8 @@ function Data.Route(player)
 
 	-- Ordered zone visits are owned by the existing water controller.
 	local waterIndex = Data.Number(player:GetAttribute("WT_WaterStageIndex"))
-	local freePlay = player:GetAttribute("SC_OnboardingStage") == "CityOpen" or player:GetAttribute("HW_Complete") == true
+	local freePlay = (Data.Number(player:GetAttribute("WB_Chapter")) or 1)>=2
+		or player:GetAttribute("SC_OnboardingStage") == "CityOpen" or player:GetAttribute("HW_Complete") == true
 	if not freePlay and waterIndex and waterIndex >= 0 and waterIndex < 5 and player:GetAttribute("WT_WaterChainComplete") ~= true then
 		local objective = player:GetAttribute("WT_WaterObjective")
 		if type(objective) == "string" and objective ~= "" then return "Follow the Water", objective, "" end

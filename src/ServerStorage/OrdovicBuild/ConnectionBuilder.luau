@@ -1,6 +1,50 @@
 local U = require(script.Parent.BuildUtil)
 local Connections = {}
 
+function Connections.TrimTunnelMouths(root)
+	local route = root["10_RouteConnections"].G2_OldWorksReturn
+	local maximum, lastLeg = {}, 0
+	for _, floor in ipairs(route:GetChildren()) do
+		local leg, piece = floor.Name:match("^Floor_(%d+)_(%d+)$")
+		if leg then
+			leg, piece = tonumber(leg), tonumber(piece)
+			maximum[leg] = math.max(maximum[leg] or 0,piece); lastLeg = math.max(lastLeg,leg)
+		end
+	end
+	for _, floor in ipairs(route:GetChildren()) do
+		local leg, piece = floor.Name:match("^Floor_(%d+)_(%d+)$")
+		if not leg then continue end
+		leg, piece = tonumber(leg), tonumber(piece)
+		local travel = floor.Size.Z-4
+		local function trim(distance,remaining)
+			return distance>0 and math.clamp(distance-remaining*travel+2,0,floor.Size.Z) or 0
+		end
+		-- The two routes diverge from one landing. Keep its whole first 60
+		-- studs free of tunnel walls so the Watcher walk does not hit a sidewall.
+		local startTrim = trim(leg==1 and 60 or 16,piece-1)
+		local endTrim = trim(leg==lastLeg and 28 or 16,maximum[leg]-piece)
+		local cf = floor.CFrame*CFrame.new(0,1.5,0)
+		local key = floor.Name:sub(6)
+		local length = floor.Size.Z-startTrim-endTrim
+		for _, sign in ipairs({-1,1}) do
+			local wall = route["Wall"..key.."_"..sign]
+			assert(wall:GetAttribute("Generator")=="OrdovicOpening" and wall:GetAttribute("BuildId")==root:GetAttribute("BuildId"))
+			wall.CanCollide=length>4;wall.CanQuery=length>4;wall.Transparency=length>4 and 0 or 1
+			wall.Size=Vector3.new(4,18,math.max(4,length))
+			wall.CFrame=cf*CFrame.new(sign*11,7.5,(endTrim-startTrim)/2)
+		end
+		-- Keep roofs over inner turns, but open the shared external landings.
+		local roofStart = trim(leg==1 and 60 or 0,piece-1)
+		local roofEnd = trim(leg==lastLeg and 28 or 0,maximum[leg]-piece)
+		local roof = route["Roof"..key]
+		local roofLength=floor.Size.Z-roofStart-roofEnd
+		roof.CanCollide=roofLength>4;roof.CanQuery=roofLength>4;roof.Transparency=roofLength>4 and 0 or 1
+		roof.Size=Vector3.new(26,4,math.max(4,roofLength))
+		roof.CFrame=cf*CFrame.new(0,18.5,(roofEnd-roofStart)/2)
+	end
+	route:SetAttribute("JunctionTreatment","OpenTurns_SetbackMouths_v2")
+end
+
 local function corridor(parent, id, nodes, tunnel)
 	local folder = U.Folder(parent, id)
 	folder:SetAttribute("RouteId", id)
@@ -43,11 +87,15 @@ function Connections.Build(root, plan)
 		Vector3.new(120,1430,-1080),city},false)
 	cityRoute:SetAttribute("Chapter",2)
 	local watcher = root["00_Guides"].GUIDE_WatcherLanding.Position-Vector3.new(0,3,0)
-	local trek = corridor(folder,"WatcherSideDescent",{watcher,Vector3.new(-1250,1320,-1100),
+	local towardWatcher = Vector3.new(-1250-watcher.X,0,-1100-watcher.Z).Unit
+	-- Leave the flat recovery landing before beginning the descent.
+	local trek = corridor(folder,"WatcherSideDescent",{watcher,watcher+towardWatcher*40,Vector3.new(-1250,1320,-1100),
 		Vector3.new(-1500,1240,-1600),Vector3.new(-1950,1130,-1980),Vector3.new(-2400,1020,-1620),
 		Vector3.new(-2840,900,-1270),Vector3.new(-3210,800,-950)},false)
 	trek:SetAttribute("RouteCategory","RegionalTraversal");trek:SetAttribute("Destination", "WatcherApproach")
+	-- Go around the irreversible drop face, rather than through its collision.
 	local returnRoute = corridor(folder,"G2_OldWorksReturn",{watcher,
+		Vector3.new(-930,watcher.Y,-975),Vector3.new(-880,1430,-1150),
 		Vector3.new(-780,1440,-1140),Vector3.new(-580,1440,-1240),
 		Vector3.new(-360,1425,-1290),Vector3.new(-180,1415,-1310),city},true)
 	returnRoute:SetAttribute("Chapter",2)
@@ -70,6 +118,7 @@ function Connections.Build(root, plan)
 	prompt.HoldDuration=1.2;prompt.MaxActivationDistance=9;prompt.RequiresLineOfSight=true
 	prompt.KeyboardKeyCode=Enum.KeyCode.E;prompt.GamepadKeyCode=Enum.KeyCode.ButtonX
 	U.Mark(prompt);prompt.Parent=marker;station:SetAttribute("Cleared",false)
+	Connections.TrimTunnelMouths(root)
 	return folder
 end
 return Connections
