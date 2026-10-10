@@ -89,10 +89,10 @@ test("Authored cue channel reaches subtitles and respects its setting", function
 end)
 player:SetAttribute("SC_Message", oldMessage)
 test("Menu controls are activatable and navigation stays inside the menu", function()
-	local resume = ui.Menus.FR_PauseMenu.TB_MenuItem_Resume.TB_Activate
-	local inventory = ui.Menus.FR_PauseMenu.TB_MenuItem_Inventory.TB_Activate
-	local settings = ui.Menus.FR_PauseMenu.TB_MenuItem_Settings.TB_Activate
-	local codex = ui.Menus.FR_PauseMenu.TB_MenuItem_Codex.TB_Activate
+	local resume = ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Resume.TB_Activate
+	local inventory = ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Inventory.TB_Activate
+	local settings = ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Settings.TB_Activate
+	local codex = ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Codex.TB_Activate
 	assert(resume:IsA("GuiButton") and resume.NextSelectionDown == inventory and inventory.NextSelectionDown == codex and codex.NextSelectionDown == settings)
 	assert(settings.NextSelectionDown == resume and resume.NextSelectionUp == settings)
 end)

@@ -21,7 +21,7 @@ function PromptUI.new(ui, inputMode)
 	-- their world instance remains, leaving a Custom prompt with no rendered view.
 	local active, owned, serial = {}, {}, 0
 	local function blocked()
-		return ui:GetAttribute("WB_MenuOpen") == true or ui:GetAttribute("WB_ReturnNoticeActive") == true
+		return ui:GetAttribute("WB_IntroActive") == true or ui:GetAttribute("WB_MenuOpen") == true or ui:GetAttribute("WB_ReturnNoticeActive") == true
 	end
 	local function register(prompt)
 		if prompt:IsA("ProximityPrompt") and prompt.Style == Enum.ProximityPromptStyle.Default
@@ -62,13 +62,13 @@ function PromptUI.new(ui, inputMode)
 		frame.Name, frame.Visible, frame.ZIndex = "FR_ActivePrompt_" .. serial, true, 45
 		frame:SetAttribute("WB_PromptPath", prompt:GetFullName())
 		frame.Parent = bar
-		Style.Panel(frame)
+		Style.Open(frame)
 		frame.FR_Keycap.Position, frame.FR_Keycap.Size = UDim2.fromOffset(10, 12), UDim2.fromOffset(36, 36)
 		frame.FR_Keycap.BackgroundColor3 = Style.Theme.Colors.WetStone
 		frame.FR_Keycap.TL_Key.TextSize = 12
 		frame.TL_Action.Position, frame.TL_Action.Size = UDim2.fromOffset(58, 9), UDim2.new(1, -68, 0, 20)
 		frame.TL_Action.Font, frame.TL_Action.TextSize = Style.Theme.Typography.StrongFont, 14
-		local object = Style.Text("TL_Object", frame, "", UDim2.fromOffset(58, 28), UDim2.new(1, -68, 0, 30), 11)
+		local object = Style.OutlinedText(Style.Text("TL_Object", frame, "", UDim2.fromOffset(58, 28), UDim2.new(1, -68, 0, 30), 13))
 		object.TextColor3 = Style.Theme.Colors.Ash
 		local fill = Style.New("Frame", "FR_HoldProgress", frame, {
 			Position = UDim2.new(0, 0, 1, -3), Size = UDim2.new(0, 0, 0, 3),
@@ -130,6 +130,7 @@ function PromptUI.new(ui, inputMode)
 		refresh()
 	end
 	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(refreshBlocked)
+	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(refreshBlocked)
 	ui:GetAttributeChangedSignal("WB_ReturnNoticeActive"):Connect(refreshBlocked)
 	inputMode:ModeChangedSignal():Connect(refresh)
 	bar.Visible = false

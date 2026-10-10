@@ -60,7 +60,7 @@ Death never deletes a home. A valid claimed Rest takes priority through the Ordo
 
 ## Quiet presentation
 
-One six-second card says **Tethys got you.** followed by the awarded exploration amount, or **Experience carried forward.** for zero awards. The card uses the existing title typeface and muted body text. It stays at 420 pixels maximum width, expanding from 82 to 102 pixels tall below 340 pixels of available card width so text can wrap without shrinking.
+One six-second borderless cue says **This life has ended.** followed by **What you learned remains.** A positive exploration award adds a small amount beneath that line; zero awards have no XP popup. The cue uses the existing title typeface and muted body text. It stays at 420 pixels maximum width, expanding from 107 to 127 pixels tall below 340 pixels of available width so text can wrap without shrinking. This HUD1.5 wording replaces the earlier death phrase at Daniel's request.
 
 It closes open menus, captures no input and gives the cue priority over speech, toasts, location cards and native interactions. Held interactions end when the cue arrives; native prompts and menu shortcuts resume afterward. Movement stays available. Touch prompts distinguish HOLD from TAP. The 0.2-second fades respect reduced motion. Duplicate revisions cannot replay the card, and an older timer cannot hide a newer cue. No permanent XP gauge was added.
 

@@ -37,6 +37,9 @@ inventory:SetInputMode(inputMode:GetMode())
 inputMode:ModeChangedSignal():Connect(function(mode) inventory:SetInputMode(mode) end)
 local menu = require(controllers.MenuController).new(ui, inventory, inputMode)
 local notices = require(controllers.NoticeController).new(ui)
+local noticeChannel = Instance.new("BindableEvent")
+noticeChannel.Name, noticeChannel.Parent = "BE_Notice", ui.Notifications
+noticeChannel.Event:Connect(function(kind, title, text) notices:Toast(kind, title, text) end)
 require(controllers.ReturnController).new(player, ui, function() menu:CloseAll() end)
 require(controllers.HUDController).new(player, ui)
 require(controllers.NavigationController).new(player, ui)
@@ -46,12 +49,14 @@ local function updateLayout() Style.Layout(ui, ui.AbsoluteSize) end
 ui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
 updateLayout()
 ui.LocationUI.FR_LocationBanner.Visible = false
+require(controllers.IntroController).new(player, ui, inputMode)
 ui.Enabled = true -- Reveal only after templates, profile and controllers are ready.
 script:SetAttribute("WB_RuntimeBinderActive", true)
-script:SetAttribute("WB_RuntimeBinderVersion", "HUD1.4")
+script:SetAttribute("WB_RuntimeBinderVersion", "HUD1.5")
 pcall(function()
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 end)
 
 local numericSlots = {
@@ -59,13 +64,13 @@ local numericSlots = {
 }
 local directionalSlots = { [Enum.KeyCode.DPadUp] = 1, [Enum.KeyCode.DPadLeft] = 2, [Enum.KeyCode.DPadRight] = 3, [Enum.KeyCode.DPadDown] = 4 }
 ContextActionService:BindActionAtPriority("WB_RadialItems", function(_, state, input)
-	if ui:GetAttribute("WB_ReturnNoticeActive") or ui:GetAttribute("WB_MenuOpen") or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
+	if ui:GetAttribute("WB_IntroActive") or ui:GetAttribute("WB_ReturnNoticeActive") or ui:GetAttribute("WB_MenuOpen") or UserInputService:GetFocusedTextBox() then return Enum.ContextActionResult.Pass end
 	if state == Enum.UserInputState.Begin then inventory:SelectQuick(directionalSlots[input.KeyCode]) end
 	return Enum.ContextActionResult.Sink
 end, false, 3200, Enum.KeyCode.DPadUp, Enum.KeyCode.DPadLeft, Enum.KeyCode.DPadRight, Enum.KeyCode.DPadDown)
 UserInputService.InputBegan:Connect(function(input, processed)
 	local key = input.KeyCode
-	if ui:GetAttribute("WB_ReturnNoticeActive") then return end
+	if ui:GetAttribute("WB_ReturnNoticeActive") or ui:GetAttribute("WB_IntroActive") then return end
 	if key == Enum.KeyCode.ButtonB and ui:GetAttribute("WB_MenuOpen") then menu:CloseAll(); return end
 	if processed or UserInputService:GetFocusedTextBox() then return end
 	if key == Enum.KeyCode.M or key == Enum.KeyCode.ButtonStart then menu:SetOpen(not menu.open); return end
@@ -103,6 +108,22 @@ local function queueHint()
 end
 for _, attribute in ipairs({ "OL_LastHintTick", "OL_LastHintText" }) do player:GetAttributeChangedSignal(attribute):Connect(queueHint) end
 player:GetAttributeChangedSignal("SC_Message"):Connect(function() notices:Subtitle(player:GetAttribute("SC_Message"), "City") end)
+local cineQueued, lastCineTick = false, nil
+local function queueCinematic()
+	if cineQueued then return end
+	cineQueued = true
+	task.delay(0.05, function()
+		cineQueued = false
+		local tick = player:GetAttribute("OL_CineTick")
+		if type(tick) ~= "number" or tick == lastCineTick then return end
+		lastCineTick = tick
+		local speaker, text = player:GetAttribute("OL_CineSpeaker"), player:GetAttribute("OL_CineLine")
+		local upper = (tostring(speaker) .. " " .. tostring(text)):upper()
+		if upper:find("STRYKER",1,true) or upper:find("CURRENT-RAT",1,true) then return end
+		notices:Subtitle(text, "Cinematic", player:GetAttribute("OL_CineDuration"))
+	end)
+end
+player:GetAttributeChangedSignal("OL_CineTick"):Connect(queueCinematic)
 local function updateCordge()
 	local text = player:GetAttribute("WB_CordgeSpeechText")
 	if player:GetAttribute("WB_CordgeLineId") and type(text) == "string" and text ~= "" then
@@ -135,18 +156,23 @@ bindRemote(knowledgeRemotes and knowledgeRemotes:FindFirstChild("KnowledgeUpdate
 	if type(cue) == "table" and cue.kind == "Cue" then notices:Subtitle(cue.text, "Knowledge") end
 end)
 queueHint()
+queueCinematic()
 notices:Subtitle(player:GetAttribute("SC_Message"), "City")
 updateCordge()
 
-print("[WildboundUIRuntimeBinder] HUD1.4 ready")
+print("[WildboundUIRuntimeBinder] HUD1.5 ready")
 
 local function connectCodex(gui)
 	if gui.Name ~= "WOTSymbolCodexGui" then return end
+	-- The producer parents this GUI before its controls exist.
+	task.spawn(function() Style.Codex(gui, ui) end)
 	local function updateToggle()
 		local toggle = gui:FindFirstChild("Toggle")
-		if toggle then toggle.Visible = ui:GetAttribute("WB_PresentationProfile") ~= "Game1" end
+		if toggle then toggle.Visible = ui:GetAttribute("WB_IntroActive") ~= true and ui:GetAttribute("WB_PresentationProfile") ~= "Game1" end
 	end
 	ui:GetAttributeChangedSignal("WB_PresentationProfile"):Connect(updateToggle)
+	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(updateToggle)
+	gui.ChildAdded:Connect(function(child) if child.Name == "Toggle" then updateToggle() end end)
 	updateToggle()
 	menu.onOpenCodex = function() local event = gui:FindFirstChild("BE_SetOpen"); if event then event:Fire(true) end end
 	menu.onBeforeOpen = function()

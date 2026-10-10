@@ -23,10 +23,10 @@ test("Live status glyphs load the uploaded Wildbound atlas", function()
 end)
 test("Inventory, Settings, menu and Codex art load without replacing controls", function()
 	for _, icon in ipairs({ ui.InventoryUI.FR_InventoryPanel.IL_TitleGlyph, ui.Menus.FR_Settings.IL_TitleGlyph,
-		ui.Menus.FR_PauseMenu.TB_MenuItem_Inventory.IL_MenuGlyph, ui.Menus.FR_PauseMenu.TB_MenuItem_Settings.IL_MenuGlyph,
+		ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Inventory.IL_MenuGlyph, ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Settings.IL_MenuGlyph,
 		codex.Toggle.IL_CodexGlyph }) do assert(icon.IsLoaded, icon:GetFullName()) end
 	assert(codex.Toggle.TL_ToggleCaption.Text == codex.Toggle.Text)
-	assert(ui.Menus.FR_PauseMenu.TB_MenuItem_Inventory.TB_Activate.Selectable)
+	assert(ui.Menus.FR_PauseMenu.SF_MenuActions.TB_MenuItem_Inventory.TB_Activate.Selectable)
 end)
 test("Health glyph and native text occupy separate readable areas", function()
 	local row = ui.HUD.FR_StatusPanel.FR_Health

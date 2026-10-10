@@ -57,7 +57,7 @@ function Navigation.new(player, ui)
 	local time
 	local function draw()
 		local count = Data.KnownCount(player)
-		local clear = ui:GetAttribute("WB_MenuOpen") ~= true and not ui.LocationUI.FR_LocationBanner.Visible
+		local clear = ui:GetAttribute("WB_IntroActive") ~= true and ui:GetAttribute("WB_MenuOpen") ~= true and not ui.LocationUI.FR_LocationBanner.Visible
 			and ui:GetAttribute("WB_PresentationProfile") ~= "Game1"
 		compass.Visible = clear
 		map.Visible = count > 0 and clear
@@ -77,6 +77,7 @@ function Navigation.new(player, ui)
 	player:GetAttributeChangedSignal("WT_WaterStageIndex"):Connect(draw)
 	map:GetPropertyChangedSignal("AbsoluteSize"):Connect(draw)
 	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(draw)
+	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(draw)
 	ui:GetAttributeChangedSignal("WB_PresentationProfile"):Connect(draw)
 	ui.LocationUI.FR_LocationBanner:GetPropertyChangedSignal("Visible"):Connect(draw)
 	draw()

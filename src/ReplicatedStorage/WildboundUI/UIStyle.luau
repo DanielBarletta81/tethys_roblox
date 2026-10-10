@@ -48,6 +48,70 @@ function Style.Panel(frame)
 	return frame
 end
 
+function Style.OutlinedText(label)
+	label.TextStrokeColor3, label.TextStrokeTransparency = Theme.Colors.Obsidian, 0.45
+	return label
+end
+
+function Style.Open(frame)
+	frame.BackgroundTransparency, frame.BorderSizePixel = 1, 0
+	for _, object in ipairs(frame:GetDescendants()) do
+		if object:IsA("UIStroke") and object.Parent:IsA("GuiObject") then
+			object.Transparency = 1
+		elseif object:IsA("TextLabel") then Style.OutlinedText(object) end
+	end
+	return frame
+end
+
+function Style.Scene(parent, name, key, transparency)
+	local scene = Style.New("ImageLabel", name, parent, {
+		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
+		ZIndex = parent.ZIndex, Active = false,
+	})
+	if Assets.ApplyScene(scene, key) then scene.ImageTransparency = transparency or 0.8 end
+	Style.New("UIGradient", "UG_Atmosphere", scene, {
+		Rotation = 90, Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.18),
+			NumberSequenceKeypoint.new(0.45,0.65),NumberSequenceKeypoint.new(1,1)}),
+	})
+	return scene
+end
+
+function Style.Brand(parent)
+	local brand = Style.New("Frame", "FR_Brand", parent, {
+		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 100), ZIndex = parent.ZIndex + 1,
+	})
+	Style.OutlinedText(Style.Text("TL_WorldOf", brand, "W O R L D  O F", UDim2.fromOffset(0,4), UDim2.new(1,0,0,18), 11)).TextXAlignment = Enum.TextXAlignment.Center
+	local title = Style.Text("TL_Tethys", brand, "T E T H Y S", UDim2.fromOffset(0,18), UDim2.new(1,0,0,48), 40)
+	title.Font, title.TextXAlignment = Theme.Typography.TitleFont, Enum.TextXAlignment.Center
+	Style.OutlinedText(title)
+	local sub = Style.Text("TL_Wildbound", brand, Assets.Variant() == "Adventures" and "A D V E N T U R E S" or "W I L D B O U N D", UDim2.fromOffset(0,70), UDim2.new(1,0,0,18), 12)
+	sub.TextColor3, sub.TextXAlignment = Theme.Colors.BronzeBright, Enum.TextXAlignment.Center
+	return brand
+end
+
+function Style.Codex(gui, ui)
+	local function decorate(object)
+		if object:IsA("TextLabel") or object:IsA("TextButton") then
+			object.TextColor3, object.Font = Theme.Colors.Bone, Theme.Typography.BodyFont
+			Style.OutlinedText(object)
+		elseif object:IsA("UIStroke") then object.Color = Theme.Colors.Bronze end
+	end
+	for _, object in ipairs(gui:GetDescendants()) do decorate(object) end
+	gui.DescendantAdded:Connect(decorate)
+	local panel = gui:WaitForChild("Panel")
+	panel:WaitForChild("Header").Font = Theme.Typography.TitleFont
+	panel.Header.TextSize = 23
+	panel.BackgroundTransparency = 0.12
+	Style.Scene(panel, "IL_CodexScene", "Archyda", 0.9)
+	local toggle = gui:WaitForChild("Toggle")
+	Style.Open(toggle)
+	local function layout()
+		panel.Size = UDim2.new(0.9, 0, 0, math.min(510, math.max(240, ui.AbsoluteSize.Y - 130)))
+	end
+	ui:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout)
+	layout()
+end
+
 -- Preserve authored Frames and children; add one real button for all input types.
 function Style.Button(frame, callback)
 	local button = frame:IsA("GuiButton") and frame or frame:FindFirstChild("TB_Activate")
@@ -102,7 +166,7 @@ function Style.Layout(ui, viewport)
 	route.Position = UDim2.fromScale(0.96, portrait and 0.31 or 0.15)
 	local quickbar = ui.InventoryUI.FR_Quickbar
 	quickbar.AnchorPoint = Vector2.new(portrait and 0.5 or 0, 1)
-	quickbar.Position = UDim2.fromScale(portrait and 0.5 or 0.04, portrait and 0.9 or compact and 0.84 or 0.92)
+	quickbar.Position = UDim2.fromScale(portrait and 0.5 or 0.04, portrait and 0.9 or compact and 0.84 or 0.9)
 	quickbar.Size = UDim2.fromScale(portrait and 0.46 or compact and 0.2 or 0.14, 0.25)
 	local radialConstraint = Style.Fit(quickbar, 220, 220)
 	radialConstraint.MinSize = Vector2.new(154, 154)
@@ -114,7 +178,7 @@ function Style.Layout(ui, viewport)
 	table.sort(slots, function(a, b) return a.Name < b.Name end)
 	for index, slot in ipairs(slots) do
 		if centers[index] then
-			slot.AnchorPoint, slot.Size = Vector2.new(0.5, 0.5), UDim2.fromScale(0.3, 0.28)
+			slot.AnchorPoint, slot.Size = Vector2.new(0.5, 0.5), UDim2.fromScale(0.3, 0.3)
 			slot.Position = UDim2.fromScale(centers[index].X, centers[index].Y)
 		else slot.Visible = false end
 	end
@@ -124,7 +188,7 @@ function Style.Layout(ui, viewport)
 	local subtitle = ui.InteractionUI:FindFirstChild("FR_Subtitle")
 	if subtitle then
 		subtitle.Position = UDim2.fromScale(0.5, portrait and 0.54 or compact and 0.75 or 0.81)
-		subtitle.Size = UDim2.new(portrait and 0.92 or compact and 0.5 or 0.55, 0, 0, 76)
+			subtitle.Size = UDim2.new(portrait and 0.92 or compact and 0.5 or 0.55, 0, 0, 96)
 	end
 	local stack = ui.Notifications.SF_ToastStack
 	stack.Position = UDim2.fromScale(0.96, portrait and 0.31 or 0.15)
@@ -161,7 +225,7 @@ function Style.Layout(ui, viewport)
 	local badgeSize = narrow and 44 or 62
 	if badge then badge.Position, badge.Size = UDim2.fromOffset(10, 12), UDim2.fromOffset(badgeSize, badgeSize) end
 	local scene = banner:FindFirstChild("IL_SceneAccent")
-	local hasScene = scene and scene:GetAttribute("UI_SceneKey") ~= nil and not narrow
+	local hasScene = scene and scene:GetAttribute("UI_SceneKey") ~= nil and not narrow and ui:GetAttribute("WB_RevealSceneAccents") == true
 	if scene then
 		scene.Visible = hasScene == true
 		scene.Position, scene.Size = UDim2.new(1, -150, 0, 1), UDim2.new(0, 149, 1, -2)
@@ -173,7 +237,7 @@ function Style.Layout(ui, viewport)
 	banner.TL_LocationName.TextSize = portrait and 22 or narrow and 24 or 30
 	banner.TL_Subtitle.Position = UDim2.fromOffset(inset, narrow and 43 or 50)
 	banner.TL_Subtitle.Size = UDim2.new(1, -inset - right, 0, 24)
-	banner.TL_Subtitle.TextSize = narrow and 12 or 14
+	banner.TL_Subtitle.TextSize = narrow and 14 or 16
 end
 
 function Style.Apply(ui)
@@ -200,8 +264,7 @@ function Style.Apply(ui)
 	local status = ui.HUD.FR_StatusPanel
 	status.Position, status.Size = UDim2.fromScale(0.02, 0.03), UDim2.new(0.23, 0, 0, 172)
 	Style.Fit(status, 272, 172)
-	Style.Panel(status)
-	status.BackgroundTransparency = 0.34
+	Style.Open(status)
 	Style.New("UIPadding", "UP_Runtime", status, {
 		PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10),
 		PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
@@ -234,7 +297,7 @@ function Style.Apply(ui)
 	local route = ui.QuestUI.FR_QuestTracker
 	route.AnchorPoint, route.Position, route.Size = Vector2.new(0, 1), UDim2.fromScale(0.02, 0.88), UDim2.new(0.29, 0, 0, 138)
 	Style.Fit(route, 340, 138)
-	Style.Panel(route)
+	Style.Open(route)
 	route.FR_Optional.Visible = false
 	route.TL_QuestType.Text, route.TL_QuestType.TextSize = "CONTEXT", 10
 	route.TL_QuestType.Position, route.TL_QuestType.Size = UDim2.fromOffset(14, 10), UDim2.new(1, -28, 0, 16)
@@ -258,7 +321,7 @@ function Style.Apply(ui)
 	Style.Fit(stack, 350, 242)
 	for _, toast in ipairs(stack:GetChildren()) do
 		if toast:IsA("Frame") then
-			Style.Panel(toast)
+			Style.Open(toast)
 			toast.Visible, toast.Size = false, UDim2.new(1, -4, 0, 72)
 			toast.TL_Title.Position, toast.TL_Title.Size = UDim2.fromOffset(12, 8), UDim2.new(1, -24, 0, 20)
 			toast.TL_Title.Font, toast.TL_Title.TextSize = Theme.Typography.StrongFont, 13
@@ -268,7 +331,7 @@ function Style.Apply(ui)
 	end
 
 	local banner = ui.LocationUI.FR_LocationBanner
-	Style.Panel(banner)
+	Style.Open(banner)
 	Style.Icon("SkyCity", "IL_RegionBadge", banner, UDim2.fromOffset(12, 10), UDim2.fromOffset(72, 72))
 	banner.Position, banner.Size = UDim2.fromScale(0.5, 0.12), UDim2.new(0.6, 0, 0, 94)
 	Style.Fit(banner, 560, 88)

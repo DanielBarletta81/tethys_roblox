@@ -7,21 +7,22 @@ function Return.new(player, ui, onReturn)
 	local self = setmetatable({Token = 0, Seen = nil}, Return)
 	self.Frame = Style.New("Frame", "FR_ReturnNotice", ui.InteractionUI, {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.65),
-		Size = UDim2.new(0.9, 0, 0, 82), Visible = false, ZIndex = 48,
+		Size = UDim2.new(0.9, 0, 0, 107), Visible = false, ZIndex = 48,
 	})
-	Style.Panel(self.Frame); Style.Fit(self.Frame, 420, 102)
-	self.Frame.BackgroundTransparency = 0.22
-	local title = Style.Text("TL_ReturnTitle", self.Frame, "Tethys got you.", UDim2.fromOffset(12, 8), UDim2.new(1, -24, 0, 30), 22)
+	Style.Open(self.Frame); Style.Fit(self.Frame, 420, 127)
+	local title = Style.Text("TL_ReturnTitle", self.Frame, "This life has ended.", UDim2.fromOffset(12, 8), UDim2.new(1, -24, 0, 30), 22)
 	title.Font = Style.Theme.Typography.TitleFont
+	Style.OutlinedText(title)
 	title.TextXAlignment = Enum.TextXAlignment.Center
-	self.Message = Style.Text("TL_ReturnExperience", self.Frame, "", UDim2.fromOffset(12, 43), UDim2.new(1, -24, 0, 25), 15)
+	self.Message = Style.Text("TL_ReturnExperience", self.Frame, "", UDim2.fromOffset(12, 43), UDim2.new(1, -24, 0, 50), 15)
 	self.Message.TextXAlignment = Enum.TextXAlignment.Center
 	self.Message.TextColor3 = Style.Theme.Colors.Ash
+	Style.OutlinedText(self.Message)
 	local function layout()
 		-- Keep body text readable; a narrow card gets two lines instead of tiny type.
 		local narrow = self.Frame.AbsoluteSize.X < 340
-		self.Frame.Size = UDim2.new(0.9, 0, 0, narrow and 102 or 82)
-		self.Message.Size = UDim2.new(1, -24, 0, narrow and 44 or 25)
+		self.Frame.Size = UDim2.new(0.9, 0, 0, narrow and 127 or 107)
+		self.Message.Size = UDim2.new(1, -24, 0, narrow and 70 or 50)
 	end
 	self.LayoutConnection = self.Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout)
 	layout()
@@ -34,7 +35,7 @@ function Return.new(player, ui, onReturn)
 		local token = self.Token
 		local amount = player:GetAttribute("WB_DeathExperience")
 		self.Message.Text = type(amount) == "number" and amount > 0
-			and string.format("+%d Experience — exploration", amount) or "Experience carried forward."
+			and string.format("What you learned remains.\n+%d Experience — exploration", amount) or "What you learned remains."
 		self.Frame.Visible = true
 		ui:SetAttribute("WB_ReturnNoticeActive", true)
 		self.Effects:Fade(1, 0); self.Effects:Fade(0, 0.2)

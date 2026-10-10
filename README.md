@@ -25,13 +25,13 @@ The module layout follows Roblox services. Stateful services use small object in
 - Native intake holds reach existing server handlers. Movement is restored on release, and unfinished rejection has its own session respawn destination.
 - Cordge checks distance, walls, life, target ownership and duplicates. Observations support sparse authored speech without introducing quest rewards.
 - Death experience adds a contextual bonus capped at 18 XP per life and 36 per ten minutes. Valid Rest takes precedence over the opening fallback; knowledge and homes survive death. Ordinary route XP still contributes to the player total.
-- HUD1.4 clears saved demo content and waits for live controller binding before revealing the HUD. It keeps Game1 quiet, preserves server title captions, gives speech/prompts priority and supports reduced motion. Location cards use a 0.65-second fade in, 1.5-second hold and 0.85-second fade out. Approved 3D portraits have a static menu adapter; no finished models are bundled.
+- HUD1.5 presents the supplied Tethys artwork before entry, keeps Game1 quiet and uses borderless reveals, prompts and subtitles. Saved demo content stays cleared; speech/prompts have priority and reduced motion is supported. Location reveals use a 0.65-second fade in, 1.5-second hold and 0.85-second fade out. The restrained life-ending cue preserves learned experience. Approved 3D portraits have a static menu adapter; no finished models are bundled. See the [PlayerGUI audit](docs/engineering/player-gui-audit.md).
 
 ## Validation
 
 | Scope | Recorded result | Limit |
 | --- | --- | --- |
-| Latest HUD pass | 40 automated Studio groups; nine changed sources matched and compiled; native settings and title handoff passed | Title handoff used an assisted touch of an existing legacy trigger; new civic placement remains pending |
+| HUD1.5 PlayerGUI pass | 13 Edit / 16 effects / 8 GUI audit / 4 layout / 4 focus / 8 return-cue groups passed; native intro, cave prompt, title fixture and respawn checked | [Dated audit and screenshots](docs/engineering/player-gui-audit.md); assisted placement and virtual input do not establish unassisted route or physical device acceptance |
 | Scatter v1 | 14 Studio test groups; seeded Terrain placement and Clear/Undo checked | Cross-pass exclusion and clustering are deferred |
 | Opening/Cordge | 23 unit groups, 11 live Cordge groups, two subtitle ownership checks | Assisted checks do not establish a complete unassisted route |
 | Raised routes | 12 structural groups, three guided native avatar walks, both intake choices, five-drop refusal, all five cave clues and checkpoint death returns | [Dated evidence](docs/engineering/raised-routes-validation.json); full unassisted river and device acceptance remain open |
@@ -44,11 +44,15 @@ The module layout follows Roblox services. Stateful services use small object in
 
 These are separate dated checkpoints, not one combined test total. See [testing and evidence](docs/engineering/testing.md), [recorded validation](docs/engineering/validation.json), and [setup](docs/engineering/setup.md).
 
-![Wildbound title presentation preview](docs/media/title-preview.jpg)
+![Wildbound intro in Studio](docs/media/hud15-intro.jpg)
+
+*Supplied Tethys artwork with a native entry action before the playable scene.*
+
+![Wildbound borderless title presentation](docs/media/hud15-title.jpg)
 
 *Controlled UI preview over the Ordovic graybox. It demonstrates artwork and layout; the real Wake does not award or display Sky City discovery.*
 
-![Cordge cave observation](docs/media/cordge-cave.jpg)
+![Cordge cave observation](docs/media/hud15-cordge.jpg)
 
 *Studio prototype: a native inspection prompt and sparse authored speech at the blocked cave route. Proxy art remains visible.*
 

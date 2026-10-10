@@ -1,4 +1,4 @@
--- Text-free sprites from approved references. Art never creates gameplay state.
+-- Approved icons, scene crops and brand art. Art never creates gameplay state.
 local Catalog = {}
 local wildboundOrder = {
 	"Health", "Stamina", "Thirst", "WaterExposure",
@@ -46,7 +46,28 @@ local function sheetRect(x, y, width, height)
 end
 local extraSprites = {Wildbound = {Injury = sheetRect(302, 479, 76, 81)}}
 local scenes = {Wildbound = {SkyCity = sheetRect(1134, 16, 304, 158)}}
--- Served dimensions were measured in Studio after upload.
+-- User-supplied regional art sheet; native rectangles preserve the original art.
+Catalog.RegionalSheet = {Image = "rbxassetid://126132122426509", Width = 1024, Height = 768, SourceWidth = 1448, SourceHeight = 1086}
+local function regionalRect(x, y, width, height)
+	local sheet = Catalog.RegionalSheet
+	local sx, sy = sheet.Width / sheet.SourceWidth, sheet.Height / sheet.SourceHeight
+	return {Image = sheet.Image, Offset = Vector2.new(math.floor(x * sx), math.floor(y * sy)),
+		Size = Vector2.new(math.floor((x + width) * sx) - math.floor(x * sx), math.floor((y + height) * sy) - math.floor(y * sy))}
+end
+local brand = regionalRect(20, 30, 326, 138)
+local regionalScenes = {
+	SkyCity = regionalRect(8, 272, 228, 204), MarshApproach = regionalRect(250, 272, 233, 204),
+	TheWeep = regionalRect(491, 272, 230, 204), WatcherVolcano = regionalRect(730, 272, 229, 204),
+	Archyda = regionalRect(970, 272, 228, 204), DanianDelta = regionalRect(1208, 272, 229, 204),
+}
+-- Clean central scene from the supplied composition; the crop excludes its HUD.
+Catalog.OpeningReference = {Image = "rbxassetid://78866242256500", Width = 1024, Height = 576, SourceWidth = 1672, SourceHeight = 941}
+local openingScene = {Image = Catalog.OpeningReference.Image,
+	Offset = Vector2.new(math.floor(260 * 1024 / 1672), math.floor(240 * 576 / 941)),
+	Size = Vector2.new(math.floor(1360 * 1024 / 1672) - math.floor(260 * 1024 / 1672),
+		math.floor(630 * 576 / 941) - math.floor(240 * 576 / 941))}
+for key, descriptor in pairs(regionalScenes) do scenes.Wildbound[key] = descriptor end
+-- Earlier atlas dimensions were measured in Studio; new sheet crops are checked visually.
 local symbols, regions = {}, {}
 for name, variant in pairs(Catalog.Variants) do
 	symbols[name], regions[name], variant.Order = {}, {}, {}
@@ -101,6 +122,22 @@ function Catalog.ApplyScene(image, key, variant)
 	if not descriptor then return false end
 	image.Image, image.ImageRectOffset, image.ImageRectSize = descriptor.Image, descriptor.Offset, descriptor.Size
 	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0.55, Enum.ScaleType.Crop
+	return true
+end
+
+function Catalog.ApplyBrand(image)
+	if Catalog.Variant() ~= "Wildbound" then image.Visible = false; return false end
+	image.Image, image.ImageRectOffset, image.ImageRectSize = brand.Image, brand.Offset, brand.Size
+	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0, Enum.ScaleType.Fit
+	image.Visible = true
+	return true
+end
+
+function Catalog.ApplyIntroScene(image)
+	if Catalog.Variant() ~= "Wildbound" then return Catalog.ApplyScene(image, "SkyCity") end
+	image.Image, image.ImageRectOffset, image.ImageRectSize = openingScene.Image, openingScene.Offset, openingScene.Size
+	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0.12, Enum.ScaleType.Crop
+	image.Visible = true
 	return true
 end
 

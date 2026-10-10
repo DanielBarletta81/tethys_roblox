@@ -272,6 +272,8 @@ local closedPos = UDim2.new(1, 444, 1, -58)
 panel.Position = closedPos
 
 local function setOpen(nextOpen)
+    local shared = playerGui:FindFirstChild("TethysUI")
+    if nextOpen and shared and (shared:GetAttribute("WB_IntroActive") == true or shared:GetAttribute("WB_ReturnNoticeActive") == true) then return end
     isOpen = nextOpen
     gui:SetAttribute("WB_CodexOpen", isOpen)
     if isOpen then GuiService.SelectedObject = toggleButton
@@ -291,6 +293,12 @@ setOpenEvent.Event:Connect(setOpen)
 local toastNonce = 0
 local function showUnlockToast(entry, knownCount, total)
     local title = (entry.gemTitle ~= "" and entry.gemTitle) or entry.symbolName or entry.key
+    local shared = playerGui:FindFirstChild("TethysUI")
+    if shared and player:GetAttribute("WOT_WildboundUIActive") == true then
+        local channel = shared.Notifications:FindFirstChild("BE_Notice")
+        if channel then channel:Fire("Discovery", "Field understanding", string.format("%s decoded (%d/%d).", title, knownCount, total)) end
+        return
+    end
     toastNonce += 1
     local nonce = toastNonce
 

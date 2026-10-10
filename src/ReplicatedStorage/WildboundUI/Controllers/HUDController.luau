@@ -28,6 +28,7 @@ function HUD.new(player, ui)
 	player:GetAttributeChangedSignal("WB_OpeningInjured"):Connect(updateCondition)
 	updateCondition()
 	local function updateVitals()
+		status.Visible = ui:GetAttribute("WB_IntroActive") ~= true
 		local state = Data.Vitals(player)
 		setRow(status.FR_Stamina, state.Stamina, nil, state.Stamina and state.Stamina < 0.25)
 		setRow(status.FR_Thirst, state.Hydration, nil, state.Hydration and state.Hydration < 0.35)
@@ -61,7 +62,7 @@ function HUD.new(player, ui)
 		end
 		local spaceAvailable = ui:GetAttribute("WB_TransientBusy") ~= true and not subtitle.Visible and not hasNotice and not ui.LocationUI.FR_LocationBanner.Visible
 			and ui:GetAttribute("WB_MenuOpen") ~= true and (ui.AbsoluteSize.X >= 900 or not prompt.Visible)
-		route.Visible = title ~= nil and spaceAvailable and ui:GetAttribute("WB_RouteHintsEnabled") ~= false
+		route.Visible = title ~= nil and spaceAvailable and ui:GetAttribute("WB_IntroActive") ~= true and ui:GetAttribute("WB_RouteHintsEnabled") ~= false
 			and ui:GetAttribute("WB_PresentationProfile") ~= "Game1"
 		if not title then return end
 		route.TL_Title.Text = title
@@ -79,6 +80,7 @@ function HUD.new(player, ui)
 	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(updateRoute)
 	ui:GetAttributeChangedSignal("WB_TransientBusy"):Connect(updateRoute)
 	ui:GetAttributeChangedSignal("WB_PresentationProfile"):Connect(function() updateVitals(); updateRoute() end)
+	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(function() updateVitals(); updateRoute() end)
 	ui:GetAttributeChangedSignal("WB_NumericVitals"):Connect(function()
 		for _, name in ipairs({ "Health", "Stamina", "Thirst", "Exposure" }) do status["FR_" .. name].TL_Value.Visible = ui:GetAttribute("WB_NumericVitals") == true end
 	end)

@@ -12,7 +12,9 @@ function Effects.new(root, ui)
 	for _, object in ipairs(objects) do
 		local values = {}
 		if object:IsA("GuiObject") then values.BackgroundTransparency = object.BackgroundTransparency end
-		if object:IsA("TextLabel") or object:IsA("TextButton") then values.TextTransparency = object.TextTransparency end
+		if object:IsA("TextLabel") or object:IsA("TextButton") then
+			values.TextTransparency, values.TextStrokeTransparency = object.TextTransparency, object.TextStrokeTransparency
+		end
 		if object:IsA("ImageLabel") or object:IsA("ImageButton") then values.ImageTransparency = object.ImageTransparency end
 		if object:IsA("UIStroke") then values.Transparency = object.Transparency end
 		if next(values) then self.Values[object] = values end

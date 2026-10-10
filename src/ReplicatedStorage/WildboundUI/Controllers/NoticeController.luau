@@ -17,13 +17,14 @@ function Notice.new(ui)
 		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 0.77),
 		Size = UDim2.new(0.66, 0, 0, 76), Visible = false, ZIndex = 44,
 	})
-	Style.Panel(self.subtitle); Style.Fit(self.subtitle, 720, 100)
-	self.subtitleLabel = Style.Text("TL_Subtitle", self.subtitle, "", UDim2.fromOffset(14, 8), UDim2.new(1, -28, 1, -16), 15)
+	Style.Open(self.subtitle); Style.Fit(self.subtitle, 720, 128)
+	self.subtitleLabel = Style.OutlinedText(Style.Text("TL_Subtitle", self.subtitle, "", UDim2.fromOffset(14, 8), UDim2.new(1, -28, 1, -16), 17))
 	self.subtitleLabel.TextXAlignment = Enum.TextXAlignment.Center
 	local function connect(signal, fn) table.insert(self.connections, signal:Connect(fn)) end
 	connect(ui:GetAttributeChangedSignal("WB_SubtitlesEnabled"), function() self:_refreshSubtitle() end)
 	connect(ui:GetAttributeChangedSignal("WB_MenuOpen"), function() self:_refreshSubtitle(); self:_refresh() end)
 	connect(ui:GetAttributeChangedSignal("WB_ReturnNoticeActive"), function() self:_refreshSubtitle(); self:_refresh() end)
+	connect(ui:GetAttributeChangedSignal("WB_IntroActive"), function() self:_refreshSubtitle(); self:_refresh() end)
 	connect(ui:GetAttributeChangedSignal("WB_PresentationProfile"), function() self:_refresh() end)
 	connect(ui:GetAttributeChangedSignal("WB_ReducedMotion"), function() self:_refreshMotion() end)
 	connect(GuiService:GetPropertyChangedSignal("ReducedMotionEnabled"), function() self:_refreshMotion() end)
@@ -36,12 +37,12 @@ function Notice.new(ui)
 end
 
 function Notice:_busy()
-	return self.ui:GetAttribute("WB_ReturnNoticeActive") == true or self.ui:GetAttribute("WB_MenuOpen") == true or self.subtitle.Visible or self.ui.InteractionUI.FR_PromptBar.Visible
+	return self.ui:GetAttribute("WB_IntroActive") == true or self.ui:GetAttribute("WB_ReturnNoticeActive") == true or self.ui:GetAttribute("WB_MenuOpen") == true or self.subtitle.Visible or self.ui.InteractionUI.FR_PromptBar.Visible
 end
 function Notice:_refreshSubtitle()
 	if self.dead then return end
 	self.subtitle.Visible = self.ui:GetAttribute("WB_SubtitlesEnabled") ~= false
-		and self.ui:GetAttribute("WB_MenuOpen") ~= true and self.ui:GetAttribute("WB_ReturnNoticeActive") ~= true
+		and self.ui:GetAttribute("WB_IntroActive") ~= true and self.ui:GetAttribute("WB_MenuOpen") ~= true and self.ui:GetAttribute("WB_ReturnNoticeActive") ~= true
 		and os.clock() < (self.subtitleExpires or 0)
 end
 function Notice:_refreshMotion()
@@ -112,15 +113,17 @@ function Notice:ClearSubtitle(source)
 	self.lastSubtitle, self.lastSubtitleSource = nil, nil
 	self.subtitleLabel.Text = ""; self.subtitle.Visible = false
 end
-function Notice:Subtitle(text, source)
+function Notice:Subtitle(text, source, requestedDuration)
 	if self.dead or type(text) ~= "string" or text == "" then return end
+	if source ~= "Cordge" and self.lastSubtitleSource == "Cordge" and os.clock() < (self.subtitleExpires or 0) then return end
 	local signature = tostring(source) .. "|" .. text
 	if signature == self.lastSubtitle and os.clock() - (self.lastSubtitleAt or 0) < 1 then return end
 	self.lastSubtitle, self.lastSubtitleAt, self.lastSubtitleSource = signature, os.clock(), source
 	self.subtitleToken += 1
 	local token = self.subtitleToken
 	self.subtitleLabel.Text = text
-	local duration = math.clamp(2.5 + #text / 35, 3, 9)
+	local duration = type(requestedDuration) == "number" and requestedDuration == requestedDuration
+		and math.clamp(requestedDuration, 3, 9) or math.clamp(2.5 + #text / 35, 3, 9)
 	self.subtitleExpires = os.clock() + duration
 	self:_refreshSubtitle()
 	task.delay(duration, function() if not self.dead and token == self.subtitleToken then self.subtitle.Visible = false end end)

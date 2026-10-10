@@ -18,6 +18,8 @@ function Inventory.new(player, ui)
 	for index, slot in ipairs(self.slots) do
 		slot:SetAttribute("WB_QuickDirection", ({ "Up", "Left", "Right", "Down" })[index])
 		Style.Panel(slot)
+		slot:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(0.5,0)
+		slot.BackgroundTransparency = 0.68
 		local name = Style.Text("TL_Name", slot, "", UDim2.fromScale(0.06, 0.04), UDim2.fromScale(0.88, 0.65), 11)
 		name.TextXAlignment = Enum.TextXAlignment.Center
 		name.TextTruncate = Enum.TextTruncate.AtEnd
@@ -32,6 +34,7 @@ function Inventory.new(player, ui)
 		Size = UDim2.fromScale(0.82, 0.72), Visible = false, ZIndex = 60,
 	})
 	Style.Panel(self.panel)
+	Style.Scene(self.panel, "IL_InventoryScene", "Archyda", 0.9)
 	Style.Fit(self.panel, 520, 470)
 	Style.Icon("Inventory", "IL_TitleGlyph", self.panel, UDim2.fromOffset(14, 10), UDim2.fromOffset(34, 34))
 	Style.Text("TL_Title", self.panel, "CARRIED ITEMS", UDim2.fromOffset(56, 14), UDim2.new(1, -140, 0, 26), 21).Font = Style.Theme.Typography.TitleFont
@@ -64,13 +67,14 @@ function Inventory.new(player, ui)
 	player.CharacterAdded:Connect(function(character) self:_watch("character", character) end)
 	ui:GetAttributeChangedSignal("WB_PresentationProfile"):Connect(function() self:_refreshQuickVisibility() end)
 	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(function() self:_refreshQuickVisibility() end)
+	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(function() self:_refreshQuickVisibility() end)
 	self:Refresh()
 	return self
 end
 
 function Inventory:_refreshQuickVisibility()
 	local quiet = self.ui:GetAttribute("WB_PresentationProfile") == "Game1"
-	self.quickbar.Visible = #self.items > 0 and self.ui:GetAttribute("WB_MenuOpen") ~= true
+	self.quickbar.Visible = #self.items > 0 and self.ui:GetAttribute("WB_IntroActive") ~= true and self.ui:GetAttribute("WB_MenuOpen") ~= true
 		and (not quiet or os.clock() < (self.quickExpires or 0))
 end
 
@@ -114,7 +118,9 @@ function Inventory:Refresh()
 			local selected = item.Id == self.selectedId or (item.Tool and item.Tool.Parent == self.player.Character)
 			slot.US_Border.Color = selected and Style.Theme.Colors.BronzeBright or Style.Theme.Colors.Bronze
 			slot.US_Border.Transparency = selected and 0 or 0.28
-		else slot:SetAttribute("WB_ItemId", nil)
+		else
+			slot:SetAttribute("WB_ItemId", nil)
+			slot.TL_Name.Text, slot.TL_Count.Text = "", ""
 		end
 	end
 	if self.panel.Visible then self:_renderList() end
@@ -188,7 +194,7 @@ function Inventory:Select(index)
 end
 
 function Inventory:SetOpen(open)
-	if open and self.ui:GetAttribute("WB_ReturnNoticeActive") then return end
+	if open and (self.ui:GetAttribute("WB_ReturnNoticeActive") or self.ui:GetAttribute("WB_IntroActive")) then return end
 	self.panel.Visible = open == true
 	if open then self:_renderList() end
 	if self.onOpenChanged then self.onOpenChanged(open == true) end

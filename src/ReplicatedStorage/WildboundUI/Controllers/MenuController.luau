@@ -8,10 +8,18 @@ Menu.__index = Menu
 function Menu.new(ui, inventory, inputMode)
 	local self = setmetatable({ ui = ui, inventory = inventory, inputMode = inputMode, open = false }, Menu)
 	self.panel = ui.Menus.FR_PauseMenu
-	self.panel.Size, self.panel.Position = UDim2.fromScale(0.8, 0.7), UDim2.fromScale(0.5, 0.5)
-	Style.Fit(self.panel, 380, 360)
+	self.panel.Size, self.panel.Position = UDim2.new(0.88,0,1,-80), UDim2.fromScale(0.5, 0.5)
+	Style.Fit(self.panel, 420, 460)
 	self.panel.ZIndex = 70
 	Style.Panel(self.panel)
+	Style.Scene(self.panel, "IL_MenuScene", "SkyCity", 0.78)
+	self.brand = Style.Brand(self.panel)
+	self.actions = Style.New("ScrollingFrame", "SF_MenuActions", self.panel, {
+		Position = UDim2.fromOffset(14,108), Size = UDim2.new(1,-28,1,-150),
+		CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 2,
+		ScrollBarImageColor3 = Style.Theme.Colors.Bronze, ZIndex = 71,
+	})
 	Style.Panel(self.panel.FR_MenuPanel)
 	self.panel.FR_MenuPanel.LayoutOrder = -1
 	self.panel.FR_MenuPanel.Visible = false
@@ -19,6 +27,7 @@ function Menu.new(ui, inventory, inputMode)
 	self.panel.UL_MenuButtons.SortOrder = Enum.SortOrder.LayoutOrder
 	self.panel.UL_MenuButtons.VerticalAlignment = Enum.VerticalAlignment.Center
 	self.panel.UL_MenuButtons.Padding = UDim.new(0, 12)
+	self.panel.UL_MenuButtons.Parent = self.actions
 	self.buttons = {}
 	for index, name in ipairs({ "Resume", "Inventory", "Codex", "Settings" }) do
 		local frame = self.panel:FindFirstChild("TB_MenuItem_" .. name)
@@ -27,6 +36,7 @@ function Menu.new(ui, inventory, inputMode)
 			Style.Text("TL_Label", frame, "CODEX")
 		end
 		frame.Size, frame.LayoutOrder, frame.ZIndex = UDim2.new(0.9, 0, 0, 48), index, 71
+		frame.Parent = self.actions
 		Style.Panel(frame)
 		frame.TL_Label.ZIndex, frame.TL_Label.TextSize = 72, 16
 		if name ~= "Resume" then
@@ -44,7 +54,17 @@ function Menu.new(ui, inventory, inputMode)
 	local navigation = { self.buttons.Resume, self.buttons.Inventory, self.buttons.Codex, self.buttons.Settings }
 	Style.VerticalNavigation(navigation)
 	self.panel.TB_MenuItem_LeaveWorld.Visible = false
-	Style.Text("TL_LeaveHint", self.panel, "Use the Roblox menu to leave the world.", UDim2.new(0.08, 0, 1, -38), UDim2.new(0.84, 0, 0, 28), 11).LayoutOrder = 5
+	Style.Text("TL_LeaveHint", self.panel, "Use the Roblox menu to leave the world.", UDim2.new(0.08, 0, 1, -38), UDim2.new(0.84, 0, 0, 28), 11)
+	local function layout()
+		local short = ui.AbsoluteSize.Y < 480
+		self.brand.Size = UDim2.new(1,0,0,short and 72 or 100)
+		self.brand.TL_Tethys.TextSize = short and 30 or 40
+		self.brand.TL_Wildbound.Position = UDim2.fromOffset(0,short and 56 or 70)
+		self.actions.Position = UDim2.fromOffset(14,short and 80 or 108)
+		self.actions.Size = UDim2.new(1,-28,1,short and -122 or -150)
+	end
+	ui:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout)
+	layout()
 	self.shade = Style.New("TextButton", "TB_MenuBackdrop", ui.Menus, {
 		Size = UDim2.fromScale(1, 1), BackgroundColor3 = Style.Theme.Colors.Obsidian,
 		BackgroundTransparency = 0.38, Text = "", Visible = false, ZIndex = 55,
@@ -52,11 +72,11 @@ function Menu.new(ui, inventory, inputMode)
 	})
 	self.shade.Activated:Connect(function() self:CloseAll() end)
 	self.toggle = Style.New("TextButton", "TB_MenuToggle", ui.Menus, {
-		AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0.02, 0.98), Size = UDim2.fromOffset(110, 36),
-		Text = "MENU [M]", Font = Style.Theme.Typography.BodyFont, TextSize = 12,
+		AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0.02, 0.98), Size = UDim2.fromOffset(110, 44),
+		Text = "MENU [M]", Font = Style.Theme.Typography.BodyFont, TextSize = 14,
 		TextColor3 = Style.Theme.Colors.Bone, ZIndex = 40,
 	})
-	Style.Panel(self.toggle)
+	Style.Open(self.toggle)
 	Style.Button(self.toggle, function() self:SetOpen(not self.open) end)
 	ui:SetAttribute("WB_SubtitlesEnabled", true)
 	ui:SetAttribute("WB_RouteHintsEnabled", true)
@@ -77,6 +97,9 @@ function Menu.new(ui, inventory, inputMode)
 	end)
 	self.toggle.Text = inputMode:GetMode() == "KeyboardMouse" and "MENU [M]" or "MENU"
 	self.panel.Visible = false
+	local function introVisibility() self.toggle.Visible = ui:GetAttribute("WB_IntroActive") ~= true end
+	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(introVisibility)
+	introVisibility()
 	return self
 end
 
@@ -137,7 +160,7 @@ function Menu:_syncOverlay()
 end
 
 function Menu:SetOpen(open)
-	if open and self.ui:GetAttribute("WB_ReturnNoticeActive") then return end
+	if open and (self.ui:GetAttribute("WB_ReturnNoticeActive") or self.ui:GetAttribute("WB_IntroActive")) then return end
 	if open then
 		self.externalOpen = false
 		if self.onBeforeOpen then self.onBeforeOpen() end
@@ -155,7 +178,7 @@ function Menu:SetOpen(open)
 end
 
 function Menu:ShowSettings()
-	if self.ui:GetAttribute("WB_ReturnNoticeActive") then return end
+	if self.ui:GetAttribute("WB_ReturnNoticeActive") or self.ui:GetAttribute("WB_IntroActive") then return end
 	self.open, self.panel.Visible, self.settings.Visible = false, false, true
 	self:_syncOverlay()
 	GuiService.SelectedObject = self.settingButtons[1]
