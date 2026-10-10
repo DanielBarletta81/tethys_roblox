@@ -76,9 +76,9 @@ end)
 test("Supplied intro and region artwork loads without using baked HUD rectangles", function()
 	local intro = player.PlayerGui.WOTIntro.FR_Intro
 	assert(intro.IL_IntroScene.IsLoaded and intro.IL_TethysMasthead.IsLoaded)
-	assert(intro.IL_IntroScene.Image == Style.Assets.OpeningReference.Image)
-	local offset, size, ref = intro.IL_IntroScene.ImageRectOffset, intro.IL_IntroScene.ImageRectSize, Style.Assets.OpeningReference
-	assert(offset.X > 0 and offset.Y > 0 and offset.X + size.X <= ref.Width and offset.Y + size.Y <= ref.Height)
+	assert(intro.IL_IntroScene.Image == Style.Assets.LocationArtwork.ORDOVIC_RIVER.Image)
+	assert(intro.IL_IntroScene.ImageRectSize == Vector2.zero and intro.TL_Motto.Text == "ORDOVIC RIVER")
+	assert(intro.TL_LocationContext.Text == "Arnn Ridge")
 	assert(Style.Assets.ReferenceSheet.Image == "rbxassetid://120531122548244")
 end)
 test("Branded menu retains accessible actions in a bounded scroll area", function()

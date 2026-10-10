@@ -1,0 +1,76 @@
+{
+  "version": "HUD1.6",
+  "date": "2026-10-10",
+  "entries": [
+    {
+      "titleId": "ORDOVIC_RIVER",
+      "sourceFile": "Basalt Overlook at Dawn-1.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "d11678dfa7569ca0763691e9f6a3c5818c092541efd3bd8bfb97caa4a73e2000",
+      "image": "rbxassetid://126814394907037"
+    },
+    {
+      "titleId": "LOWER_TIERS",
+      "sourceFile": "Beneath the Three Basalt Teeth-3.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "19b5f9f2e47a5218b0c8a21a77443fb8cd48814420288187180db1082811dcbc",
+      "image": "rbxassetid://109873686264957"
+    },
+    {
+      "titleId": "WATCHER_VOLCANO",
+      "sourceFile": "The Watcher Beneath Storms-1.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "8e43b74d211fdda22e54c6d8b6ff9e4c2e190d1e30c5893a52a484b27befd771",
+      "image": "rbxassetid://138703072295579"
+    },
+    {
+      "titleId": "SILURIA",
+      "sourceFile": "Silurian Delta at Dawn.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "409b38c6bfd032b8bf65fb096dfc129e8fb7be46e498c7ba56da0ccdcff4aed0",
+      "image": "rbxassetid://130107598472956"
+    },
+    {
+      "titleId": "THE_LEDGE",
+      "sourceFile": "The Ledge_ Sky City to Watcher-2.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "8d7ea34ffba3cc7d0345549c9c66a574550e59d9a388ca4226b45871d547de16",
+      "image": "rbxassetid://88395306036097"
+    },
+    {
+      "titleId": "SKY_CITY_INTAKE",
+      "sourceFile": "Sky City's First Sort Intake-4.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "f9f8bbda60e324794ebfd1751224f5529af349444d3180a47f3f4762bc089456",
+      "image": "rbxassetid://134634602664878"
+    },
+    {
+      "titleId": "SKY_CITY",
+      "sourceFile": "Sky City Above the Weep-2.png",
+      "sourceDimensions": [
+        1672,
+        941
+      ],
+      "sourceSHA256": "aa8ccb8d24c7ef4ed8fc43f1a8a2bc1397295cb8f1aa2a01e729cebba2871e86",
+      "image": "rbxassetid://106624597388663"
+    }
+  ]
+}

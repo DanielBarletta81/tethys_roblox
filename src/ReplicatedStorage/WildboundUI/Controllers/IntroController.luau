@@ -39,9 +39,12 @@ function Intro.new(player, ui, inputMode)
 		brand.AnchorPoint, brand.Position = Vector2.new(0.5,0.5), UDim2.fromScale(0.5,0.4)
 	end
 	self.Motto = Style.OutlinedText(Style.Text("TL_Motto", self.Root,
-		"PRIMITIVE LANDS.  STRANGE CREATURES.  DEEPER INSTINCTS.",
-		UDim2.fromScale(0.1,0.61), UDim2.new(0.8,0,0,40), 14))
+		"ORDOVIC RIVER", UDim2.fromScale(0.1,0.61), UDim2.new(0.8,0,0,40), 30))
+	self.Motto.Font = Style.Theme.Typography.TitleFont
 	self.Motto.TextXAlignment, self.Motto.ZIndex = Enum.TextXAlignment.Center, 3
+	self.Context = Style.OutlinedText(Style.Text("TL_LocationContext", self.Root, "Arnn Ridge",
+		UDim2.fromScale(0.1,0.69), UDim2.new(0.8,0,0,24), 15))
+	self.Context.TextXAlignment, self.Context.ZIndex = Enum.TextXAlignment.Center, 3
 	self.Enter = Style.New("TextButton", "TB_EnterTethys", self.Root, {
 		AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.8),
 		Size = UDim2.new(0.8,0,0,52), Text = "ENTER TETHYS", Font = Style.Theme.Typography.TitleFont,
@@ -67,7 +70,7 @@ function Intro.new(player, ui, inputMode)
 	local function layout()
 		local short = self.Screen.AbsoluteSize.Y < 500
 		self.Logo.Size = UDim2.new(0.82,0,0,short and 130 or 216)
-		self.Motto.TextSize = self.Screen.AbsoluteSize.X < 500 and 12 or 14
+		self.Motto.TextSize = self.Screen.AbsoluteSize.X < 500 and 24 or 30
 	end
 	table.insert(self.Connections, self.Screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout))
 	layout()

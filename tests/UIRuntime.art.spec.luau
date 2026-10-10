@@ -81,5 +81,39 @@ test("Adventures palette retains shared theme fields and readable contrast", fun
 	end
 	assert((luminance(adventure.Colors.Obsidian) + 0.05) / (luminance(adventure.Colors.Bone) + 0.05) >= 4.5)
 end)
+test("Location originals retain whole-image placement and clear stale crops", function()
+	local image = Instance.new("ImageLabel")
+	local ok, message = pcall(function()
+		for id, entry in pairs(Assets.LocationArtwork) do
+			image.ImageRectOffset, image.ImageRectSize = Vector2.new(12,34), Vector2.new(56,78)
+			assert(Assets.ApplyLocation(image, id) and image.Image == entry.Image and image.Visible)
+			assert(image.ImageRectOffset == Vector2.zero and image.ImageRectSize == Vector2.zero)
+			assert(image.ScaleType == Enum.ScaleType.Fit and image:GetAttribute("UI_LocationId") == id)
+		end
+		assert(not Assets.ApplyLocation(image, "Unknown") and image.Image == "" and not image.Visible)
+		assert(image:GetAttribute("UI_LocationId") == nil)
+	end)
+	image:Destroy(); assert(ok, message)
+end)
+test("Seven authored locations resolve captions without opening reserved upstream", function()
+	local policy = readModule(root.PresentationPolicy)
+	local count, images = 0, {}
+	for id, entry in pairs(Assets.LocationArtwork) do
+		count += 1; assert(not images[entry.Image]); images[entry.Image] = true
+		local cue = assert(policy.ResolveTitle({Type = "TITLE", TitleId = id, ContextId = "Authored context"}))
+		assert(cue.Authored and cue.Context == "Authored context" and cue.Id == id)
+	end
+	assert(count == 7 and not policy.ResolveTitle({Type = "TITLE", TitleId = "SILURIAN_UPSTREAM"}))
+	assert(Assets.LocationArtwork.SILURIA.Context == "East of Sky City")
+end)
+test("Only server-owned intake approach and landing phases request its reveal", function()
+	local policy = readModule(root.PresentationPolicy)
+	assert(policy.OpeningLocation("ENGINEERING_FIRST_READ").Id == "SKY_CITY_INTAKE")
+	assert(policy.OpeningLocation("INTAKE_WORKS").Id == "SKY_CITY_INTAKE")
+	for _, phase in ipairs({"CAVE_WAKE", "INTAKE_CHOICE", "REJECT_CASCADE", "EASY_RIVER", "UNKNOWN"}) do
+		assert(policy.OpeningLocation(phase) == nil)
+	end
+	assert(policy.OpeningLocation(nil) == nil)
+end)
 gui:Destroy()
 return result

@@ -217,6 +217,24 @@ function Style.Layout(ui, viewport)
 	if toggle then toggle.Position = UDim2.fromScale(0.04, 0.97) end
 	local banner = ui.LocationUI.FR_LocationBanner
 	local narrow = viewport.X < 900
+	local artwork = banner:FindFirstChild("IL_LocationArtwork")
+	if artwork and artwork:GetAttribute("UI_LocationId") and artwork.IsLoaded then
+		local aspect = 1672 / 941
+		local width = math.min(680, viewport.X * (portrait and 0.9 or 0.5), viewport.Y * (portrait and 0.22 or 0.32) * aspect)
+		local height = math.floor(width / aspect)
+		banner.AnchorPoint, banner.Position = Vector2.new(0.5, 0), UDim2.fromScale(0.5, portrait and 0.34 or 0.14)
+		banner.Size = UDim2.fromOffset(math.floor(width), height)
+		Style.Fit(banner, 680, 383)
+		artwork.Position, artwork.Size = UDim2.fromScale(0,0), UDim2.fromScale(1,1)
+		banner.IL_RegionBadge.Visible, banner.IL_SceneAccent.Visible, banner.TL_Kicker.Visible = false, false, false
+		local titleY = math.floor(height * 0.5)
+		banner.TL_LocationName.Position, banner.TL_LocationName.Size = UDim2.fromOffset(18, titleY), UDim2.new(1,-36,0,34)
+		banner.TL_LocationName.TextSize = narrow and 22 or 30
+		banner.TL_Subtitle.Position, banner.TL_Subtitle.Size = UDim2.fromOffset(18, titleY + 40), UDim2.new(1,-36,0,24)
+		banner.TL_Subtitle.TextSize = narrow and 14 or 16
+		return
+	end
+	banner.AnchorPoint = Vector2.new(0.5, 0)
 	local height = narrow and 70 or 88
 	banner.Position = UDim2.fromScale(0.5, portrait and 0.28 or narrow and 0.30 or 0.12)
 	banner.Size = UDim2.new(portrait and 0.88 or narrow and 0.58 or 0.43, 0, 0, height)
@@ -341,6 +359,16 @@ function Style.Apply(ui)
 	Style.New("UIGradient", "UG_SceneEdge", scene, {
 		Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1), NumberSequenceKeypoint.new(0.32,0.7), NumberSequenceKeypoint.new(1,0.22)}),
 	})
+	local artwork = Style.New("ImageLabel", "IL_LocationArtwork", banner, {
+		BackgroundTransparency = 1, BorderSizePixel = 0, ImageTransparency = 0.28,
+		Size = UDim2.fromScale(1,1), Visible = false, ZIndex = banner.ZIndex,
+	})
+	Style.New("UIGradient", "UG_SoftEdges", artwork, {
+		Rotation = 90, Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1),
+			NumberSequenceKeypoint.new(0.12,0.08), NumberSequenceKeypoint.new(0.78,0.08), NumberSequenceKeypoint.new(1,1)}),
+	})
+	artwork:GetPropertyChangedSignal("IsLoaded"):Connect(function() Style.Layout(ui, ui.AbsoluteSize) end)
+	banner.TL_LocationName.ZIndex, banner.TL_Subtitle.ZIndex = banner.ZIndex + 2, banner.ZIndex + 2
 	banner.TL_LocationName.Font, banner.TL_LocationName.TextSize = Theme.Typography.TitleFont, 32
 	banner.TL_Kicker.TextSize, banner.TL_Subtitle.TextSize = 10, 12
 	ui.LoadingUI.FR_LoadingScreen.Visible = false

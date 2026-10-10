@@ -25,12 +25,13 @@ The module layout follows Roblox services. Stateful services use small object in
 - Native intake holds reach existing server handlers. Movement is restored on release, and unfinished rejection has its own session respawn destination.
 - Cordge checks distance, walls, life, target ownership and duplicates. Observations support sparse authored speech without introducing quest rewards.
 - Death experience adds a contextual bonus capped at 18 XP per life and 36 per ten minutes. Valid Rest takes precedence over the opening fallback; knowledge and homes survive death. Ordinary route XP still contributes to the player total.
-- HUD1.5 presents the supplied Tethys artwork before entry, keeps Game1 quiet and uses borderless reveals, prompts and subtitles. Saved demo content stays cleared; speech/prompts have priority and reduced motion is supported. Location reveals use a 0.65-second fade in, 1.5-second hold and 0.85-second fade out. The restrained life-ending cue preserves learned experience. Approved 3D portraits have a static menu adapter; no finished models are bundled. See the [PlayerGUI audit](docs/engineering/player-gui-audit.md).
+- HUD1.6 registers seven supplied location images, starts with Ordovic River from Arnn Ridge and binds Intake to existing opening phases. Borderless reveals share a 0.65-second fade in, 1.5-second hold and 0.85-second fade out; speech/prompts have priority and reduced motion is supported. Saved demo content stays cleared and the restrained life-ending cue preserves learned experience. Live validation of the new images is pending Studio responsiveness; see the [artwork checkpoint](docs/engineering/location-artwork.md) and earlier [PlayerGUI audit](docs/engineering/player-gui-audit.md). Approved 3D portraits have a static menu adapter; no finished models are bundled.
 
 ## Validation
 
 | Scope | Recorded result | Limit |
 | --- | --- | --- |
+| HUD1.6 location artwork | Seven uploads and matching installed sources; 13 UI / 10 art Edit groups passed | [Dated checkpoint](docs/engineering/location-artwork.md); Play entry and capture timed out, so Client loading/layout checks and save confirmation remain pending |
 | HUD1.5 PlayerGUI pass | 13 Edit / 16 effects / 8 GUI audit / 4 layout / 4 focus / 8 return-cue groups passed; native intro, cave prompt, title fixture and respawn checked | [Dated audit and screenshots](docs/engineering/player-gui-audit.md); assisted placement and virtual input do not establish unassisted route or physical device acceptance |
 | Scatter v1 | 14 Studio test groups; seeded Terrain placement and Clear/Undo checked | Cross-pass exclusion and clustering are deferred |
 | Opening/Cordge | 23 unit groups, 11 live Cordge groups, two subtitle ownership checks | Assisted checks do not establish a complete unassisted route |

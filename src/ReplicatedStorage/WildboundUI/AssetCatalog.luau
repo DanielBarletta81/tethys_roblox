@@ -1,5 +1,6 @@
 -- Approved icons, scene crops and brand art. Art never creates gameplay state.
 local Catalog = {}
+Catalog.LocationArtwork = require(script.Parent.LocationArtwork)
 local wildboundOrder = {
 	"Health", "Stamina", "Thirst", "WaterExposure",
 	"Inventory", "Settings", "Journal", "Tracks",
@@ -60,12 +61,8 @@ local regionalScenes = {
 	TheWeep = regionalRect(491, 272, 230, 204), WatcherVolcano = regionalRect(730, 272, 229, 204),
 	Archyda = regionalRect(970, 272, 228, 204), DanianDelta = regionalRect(1208, 272, 229, 204),
 }
--- Clean central scene from the supplied composition; the crop excludes its HUD.
+-- Retain the earlier composition's identity for existing presentation references.
 Catalog.OpeningReference = {Image = "rbxassetid://78866242256500", Width = 1024, Height = 576, SourceWidth = 1672, SourceHeight = 941}
-local openingScene = {Image = Catalog.OpeningReference.Image,
-	Offset = Vector2.new(math.floor(260 * 1024 / 1672), math.floor(240 * 576 / 941)),
-	Size = Vector2.new(math.floor(1360 * 1024 / 1672) - math.floor(260 * 1024 / 1672),
-		math.floor(630 * 576 / 941) - math.floor(240 * 576 / 941))}
 for key, descriptor in pairs(regionalScenes) do scenes.Wildbound[key] = descriptor end
 -- Earlier atlas dimensions were measured in Studio; new sheet crops are checked visually.
 local symbols, regions = {}, {}
@@ -135,9 +132,19 @@ end
 
 function Catalog.ApplyIntroScene(image)
 	if Catalog.Variant() ~= "Wildbound" then return Catalog.ApplyScene(image, "SkyCity") end
-	image.Image, image.ImageRectOffset, image.ImageRectSize = openingScene.Image, openingScene.Offset, openingScene.Size
+	image.Image, image.ImageRectOffset, image.ImageRectSize = Catalog.LocationArtwork.ORDOVIC_RIVER.Image, Vector2.zero, Vector2.zero
 	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0.12, Enum.ScaleType.Crop
 	image.Visible = true
+	return true
+end
+
+function Catalog.ApplyLocation(image, id)
+	local entry = Catalog.Variant() == "Wildbound" and type(id) == "string" and Catalog.LocationArtwork[id]
+	image.Visible = entry ~= nil and entry ~= false
+	image:SetAttribute("UI_LocationId", entry and id or nil)
+	if not entry then image.Image = ""; return false end
+	image.Image, image.ImageRectOffset, image.ImageRectSize = entry.Image, Vector2.zero, Vector2.zero
+	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0.28, Enum.ScaleType.Fit
 	return true
 end
 

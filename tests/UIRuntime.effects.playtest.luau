@@ -201,7 +201,7 @@ test("Quiet live HUD remains a singleton with no premature title or portrait", f
 	assert(count == 1 and live:GetAttribute("WB_PresentationProfile") == "Game1")
 	assert(not live.LocationUI.FR_LocationBanner.Visible and not live.MapUI.FR_Compass.Visible)
 	assert(not live.HUD.FR_StatusPanel.FR_Stamina.Visible and not live.Menus.FR_CharacterPreview.Visible)
-	assert(player.PlayerScripts.WildboundUIRuntimeBinder:GetAttribute("WB_RuntimeBinderVersion") == "HUD1.5")
+	assert(player.PlayerScripts.WildboundUIRuntimeBinder:GetAttribute("WB_RuntimeBinderVersion") == "HUD1.6")
 end)
 test("Live HUD enables only after binding and contains no saved demo text", function()
 	assert(live.Enabled and live:GetAttribute("WB_RuntimeBound") and live:GetAttribute("WB_TemplateVersion") == "HUD1.4")

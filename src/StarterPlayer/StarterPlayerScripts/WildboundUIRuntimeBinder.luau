@@ -52,7 +52,7 @@ ui.LocationUI.FR_LocationBanner.Visible = false
 require(controllers.IntroController).new(player, ui, inputMode)
 ui.Enabled = true -- Reveal only after templates, profile and controllers are ready.
 script:SetAttribute("WB_RuntimeBinderActive", true)
-script:SetAttribute("WB_RuntimeBinderVersion", "HUD1.5")
+script:SetAttribute("WB_RuntimeBinderVersion", "HUD1.6")
 pcall(function()
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
@@ -108,6 +108,12 @@ local function queueHint()
 end
 for _, attribute in ipairs({ "OL_LastHintTick", "OL_LastHintText" }) do player:GetAttributeChangedSignal(attribute):Connect(queueHint) end
 player:GetAttributeChangedSignal("SC_Message"):Connect(function() notices:Subtitle(player:GetAttribute("SC_Message"), "City") end)
+local function openingLocation()
+	local reveal = require(library.PresentationPolicy).OpeningLocation(player:GetAttribute("OpeningPhase"))
+	if reveal then notices:Location(reveal.Title, reveal.Context, reveal) end
+end
+player:GetAttributeChangedSignal("OpeningPhase"):Connect(openingLocation)
+openingLocation()
 local cineQueued, lastCineTick = false, nil
 local function queueCinematic()
 	if cineQueued then return end
@@ -160,7 +166,7 @@ queueCinematic()
 notices:Subtitle(player:GetAttribute("SC_Message"), "City")
 updateCordge()
 
-print("[WildboundUIRuntimeBinder] HUD1.5 ready")
+print("[WildboundUIRuntimeBinder] HUD1.6 ready")
 
 local function connectCodex(gui)
 	if gui.Name ~= "WOTSymbolCodexGui" then return end

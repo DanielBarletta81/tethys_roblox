@@ -147,6 +147,7 @@ function Notice:_showLocation(job)
 	self.queuedLocations[job.Id], self.seenLocations[job.Id] = nil, true
 	Style.Assets.Apply(self.banner.IL_RegionBadge, job.Icon)
 	Style.Assets.ApplyScene(self.banner.IL_SceneAccent, job.Icon)
+	Style.Assets.ApplyLocation(self.banner.IL_LocationArtwork, job.Id)
 	self.banner.TL_Kicker.Text, self.banner.TL_LocationName.Text, self.banner.TL_Subtitle.Text = "", job.Title, job.Context
 	Style.Layout(self.ui, self.ui.AbsoluteSize)
 	self.bannerEffects:Fade(1, 0); self.bannerEffects:Fade(0, Policy.RevealFadeIn)
