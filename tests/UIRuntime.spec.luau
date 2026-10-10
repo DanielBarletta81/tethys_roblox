@@ -10,6 +10,7 @@ local function readModule(module)
 end
 local Data = readModule(game.ReplicatedStorage.WildboundUI.RuntimeData)
 local Style = readModule(game.ReplicatedStorage.WildboundUI.UIStyle)
+local TemplateState = readModule(game.ReplicatedStorage.WildboundUI.TemplateState)
 local result = { passed = {}, failed = {} }
 local fixtures = Instance.new("Folder")
 local gui = game.StarterGui.TethysUI:Clone()
@@ -23,6 +24,33 @@ local function test(name, callback)
 	local ok, message = pcall(callback)
 	table.insert(ok and result.passed or result.failed, ok and name or { name = name, error = tostring(message) })
 end
+
+test("Saved templates contain no gameplay examples before controllers bind", function()
+	local toast = gui.Notifications.SF_ToastStack.FR_Toast_Item
+	local route = gui.QuestUI.FR_QuestTracker
+	local label = gui.HUD.FR_StatusPanel.FR_Health.TL_Label
+	local count = #gui:GetDescendants()
+	toast.Visible, toast.TL_Title.Text, toast.TL_Message.Text = true, "Item Found", "Mushroom collected."
+	route.Visible, route.TL_QuestType.Text, route.TL_Title.Text = true, "MAIN QUEST", "Watcher Stirs"
+	gui.InventoryUI.FR_Quickbar.FR_Slot_01.TL_Count.Text = "99"
+	TemplateState.Prepare(gui)
+	assert(not gui.Enabled and not route.Visible and not toast.Visible)
+	assert(route.TL_QuestType.Text == "" and route.TL_Title.Text == "" and toast.TL_Message.Text == "")
+	assert(gui.InventoryUI.FR_Quickbar.FR_Slot_01.TL_Count.Text == "")
+	assert(gui.HUD.FR_StatusPanel.FR_Health.TL_Value.Text == "" and not gui.HUD.FR_StatusPanel.FR_Health.Visible)
+	assert(gui.HUD.FR_StatusPanel.FR_Health.TL_Label == label and label.Text == "HEALTH")
+	assert(#gui:GetDescendants() == count and gui:GetAttribute("WB_TemplateVersion") == "HUD1.4")
+	TemplateState.Prepare(gui) -- Reapplying the Edit recipe is harmless.
+	assert(#gui:GetDescendants() == count)
+end)
+test("Template cleanup refuses to erase a bound HUD", function()
+	gui:SetAttribute("WB_RuntimeBound", true)
+	gui.Enabled = true
+	local ok = pcall(TemplateState.Prepare, gui)
+	assert(not ok and gui.Enabled)
+	gui:SetAttribute("WB_RuntimeBound", nil)
+	gui.Enabled = false
+end)
 
 test("Meters reject missing and invalid values and clamp real data", function()
 	assert(Data.Percent(nil) == nil and Data.Percent("100") == nil)

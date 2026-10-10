@@ -15,10 +15,12 @@ player:SetAttribute("WOT_WildboundUIActive", true)
 local ui = playerGui:WaitForChild("TethysUI", 5)
 if not ui then ui = template:Clone(); ui.Parent = playerGui end
 if ui:GetAttribute("WB_RuntimeBound") then return end
-ui:SetAttribute("WB_RuntimeBound", true)
+ui.Enabled = false
 
 local library = ReplicatedStorage:WaitForChild("WildboundUI")
 local controllers = library:WaitForChild("Controllers")
+require(library.TemplateState).Prepare(ui)
+ui:SetAttribute("WB_RuntimeBound", true)
 local Style = require(library.UIStyle)
 local Data = require(library.RuntimeData)
 local function updateProfile() ui:SetAttribute("WB_PresentationProfile", Data.Profile(player, ui)) end
@@ -44,8 +46,9 @@ local function updateLayout() Style.Layout(ui, ui.AbsoluteSize) end
 ui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
 updateLayout()
 ui.LocationUI.FR_LocationBanner.Visible = false
+ui.Enabled = true -- Reveal only after templates, profile and controllers are ready.
 script:SetAttribute("WB_RuntimeBinderActive", true)
-script:SetAttribute("WB_RuntimeBinderVersion", "HUD1.3")
+script:SetAttribute("WB_RuntimeBinderVersion", "HUD1.4")
 pcall(function()
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
@@ -135,7 +138,7 @@ queueHint()
 notices:Subtitle(player:GetAttribute("SC_Message"), "City")
 updateCordge()
 
-print("[WildboundUIRuntimeBinder] HUD1.3 ready")
+print("[WildboundUIRuntimeBinder] HUD1.4 ready")
 
 local function connectCodex(gui)
 	if gui.Name ~= "WOTSymbolCodexGui" then return end

@@ -34,6 +34,10 @@ Game1 keeps health, hydration, real injury state, native prompts, brief item rec
 
 Technical region visits and dramatic reveals are separate. The title should appear at the first inhabited civic view, not Wake, Recovery or capture. Current legacy title triggers have not been relocated into the new route.
 
+Saved HUD templates carry layout and art without example gameplay state.
+[HUD1.4 preparation](ui-template-cleanup.md) keeps the ScreenGui disabled until
+its real controllers bind, preventing sample quest/item text in Edit or loading.
+
 ## Deliberate limits
 
 There is no custom replication layer or new DataStore backend in this export. Existing attribute replication and owner events meet the tested slice. Add network protocols when a real interaction requires them, with explicit payload validation and failure behavior. Add persistence with schema/versioning, concurrent-session protection and tested failures before describing it as production-ready.

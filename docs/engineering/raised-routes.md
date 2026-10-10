@@ -134,7 +134,8 @@ three owned edit waypoints using the documented
 [ChangeHistoryService API](https://create.roblox.com/docs/reference/engine/classes/ChangeHistoryService).
 The prior route hierarchy restored, then Redo restored its archive links,
 current markers and opened bank. The save API refused Edit-context saving;
-cloud saving remains unconfirmed and requires the Studio Save action. No
+Daniel subsequently confirmed saving the place on 2026-10-10. This is user
+confirmation, not an API read-back verification. No
 capabilities or game settings were changed to work around that refusal. See the
 [dated evidence](raised-routes-validation.json).
 

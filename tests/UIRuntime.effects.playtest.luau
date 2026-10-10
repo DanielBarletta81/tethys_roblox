@@ -197,6 +197,22 @@ test("Quiet live HUD remains a singleton with no premature title or portrait", f
 	assert(count == 1 and live:GetAttribute("WB_PresentationProfile") == "Game1")
 	assert(not live.LocationUI.FR_LocationBanner.Visible and not live.MapUI.FR_Compass.Visible)
 	assert(not live.HUD.FR_StatusPanel.FR_Stamina.Visible and not live.Menus.FR_CharacterPreview.Visible)
-	assert(player.PlayerScripts.WildboundUIRuntimeBinder:GetAttribute("WB_RuntimeBinderVersion") == "HUD1.3")
+	assert(player.PlayerScripts.WildboundUIRuntimeBinder:GetAttribute("WB_RuntimeBinderVersion") == "HUD1.4")
+end)
+test("Live HUD enables only after binding and contains no saved demo text", function()
+	assert(live.Enabled and live:GetAttribute("WB_RuntimeBound") and live:GetAttribute("WB_TemplateVersion") == "HUD1.4")
+	local demo = { ["MAIN QUEST"] = true, ["Watcher Stirs"] = true, ["Item Found"] = true,
+		["Mushroom collected."] = true, ["Predator nearby."] = true,
+		["New location mapped."] = true, ["Optional: Gather ashbloom mushrooms"] = true }
+	for _, object in ipairs(live:GetDescendants()) do
+		if object:IsA("TextLabel") or object:IsA("TextButton") then
+			assert(not demo[object.Text], object:GetFullName() .. " still carries demo text")
+		end
+	end
+	for _, slot in ipairs(live.InventoryUI.FR_Quickbar:GetChildren()) do
+		if slot:IsA("Frame") and slot.Name:match("^FR_Slot_") and not slot:GetAttribute("WB_ItemId") then
+			assert(not slot.Visible and slot.TL_Count.Text == "")
+		end
+	end
 end)
 return result

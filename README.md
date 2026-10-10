@@ -25,7 +25,7 @@ The module layout follows Roblox services. Stateful services use small object in
 - Native intake holds reach existing server handlers. Movement is restored on release, and unfinished rejection has its own session respawn destination.
 - Cordge checks distance, walls, life, target ownership and duplicates. Observations support sparse authored speech without introducing quest rewards.
 - Death experience adds a contextual bonus capped at 18 XP per life and 36 per ten minutes. Valid Rest takes precedence over the opening fallback; knowledge and homes survive death. Ordinary route XP still contributes to the player total.
-- HUD1.3 keeps Game1 quiet, preserves server title captions, gives speech/prompts priority and supports reduced motion. Location cards use a 0.65-second fade in, 1.5-second hold and 0.85-second fade out. Approved 3D portraits have a static menu adapter; no finished models are bundled.
+- HUD1.4 clears saved demo content and waits for live controller binding before revealing the HUD. It keeps Game1 quiet, preserves server title captions, gives speech/prompts priority and supports reduced motion. Location cards use a 0.65-second fade in, 1.5-second hold and 0.85-second fade out. Approved 3D portraits have a static menu adapter; no finished models are bundled.
 
 ## Validation
 

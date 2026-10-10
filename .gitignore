@@ -17,6 +17,7 @@
 /tools/*
 !/tools/*.luau
 !/tools/ordovic/
+!/tools/ui/
 !/tools/ci_checks.py
 !/tools/install_luau.py
 !/tools/luau-release.json
