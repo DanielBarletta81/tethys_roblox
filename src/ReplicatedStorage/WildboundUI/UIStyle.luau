@@ -1,5 +1,6 @@
 local Theme = require(script.Parent.Theme)
 local Assets = require(script.Parent.AssetCatalog)
+local ArtworkLayers = require(script.Parent.ArtworkLayers)
 if Assets.Variant() == "Adventures" then Theme = require(script.Parent.Themes.AdventuresTheme) end
 if Assets.Variant() == "Wildbound" then
 	Theme = table.clone(Theme)
@@ -7,7 +8,7 @@ if Assets.Variant() == "Wildbound" then
 	Theme.Colors.HealthMuted, Theme.Colors.Danger = Color3.fromRGB(163, 84, 78), Color3.fromRGB(163, 84, 78)
 	Theme.Colors.StaminaMuted = Color3.fromRGB(110, 124, 80)
 end
-local Style = { Theme = Theme, Assets = Assets }
+local Style = { Theme = Theme, Assets = Assets, Artwork = ArtworkLayers }
 
 function Style.New(className, name, parent, properties)
 	local object = Instance.new(className)
@@ -86,6 +87,15 @@ function Style.Brand(parent)
 	Style.OutlinedText(title)
 	local sub = Style.Text("TL_Wildbound", brand, Assets.Variant() == "Adventures" and "A D V E N T U R E S" or "W I L D B O U N D", UDim2.fromOffset(0,70), UDim2.new(1,0,0,18), 12)
 	sub.TextColor3, sub.TextXAlignment = Theme.Colors.BronzeBright, Enum.TextXAlignment.Center
+	if Assets.Variant() == "Wildbound" then
+		local logo = ArtworkLayers.Whole(brand, "Masthead", "IL_PlayerMasthead")
+		if logo then
+			local function fallback()
+				for _, name in ipairs({"TL_WorldOf", "TL_Tethys", "TL_Wildbound"}) do brand[name].Visible = not logo.IsLoaded end
+			end
+			logo:GetPropertyChangedSignal("IsLoaded"):Connect(fallback); fallback()
+		end
+	end
 	return brand
 end
 
@@ -171,6 +181,9 @@ function Style.Layout(ui, viewport)
 	local radialConstraint = Style.Fit(quickbar, 220, 220)
 	radialConstraint.MinSize = Vector2.new(154, 154)
 	local centers = { Vector2.new(0.5, 0.16), Vector2.new(0.16, 0.5), Vector2.new(0.84, 0.5), Vector2.new(0.5, 0.84) }
+	if quickbar:GetAttribute("WB_QuickArtworkLoaded") == true then
+		centers = {Vector2.new(0.5,0.18), Vector2.new(0.17,0.74), Vector2.new(0.84,0.74), Vector2.new(0.5,0.61)}
+	end
 	local slots = {}
 	for _, slot in ipairs(quickbar:GetChildren()) do
 		if slot:IsA("Frame") and slot.Name:match("^FR_Slot_") then table.insert(slots, slot) end
@@ -311,6 +324,9 @@ function Style.Apply(ui)
 	status.FR_Stamina.FR_BarBack.FR_BarFill.BackgroundColor3 = Theme.Colors.StaminaMuted
 	status.FR_Thirst.FR_BarBack.FR_BarFill.BackgroundColor3 = Theme.Colors.MistTeal
 	status.FR_Exposure.FR_BarBack.FR_BarFill.BackgroundColor3 = Theme.Colors.Amber
+	if Assets.Variant() == "Wildbound" then
+		for _, name in ipairs({"Health", "Stamina", "Thirst"}) do ArtworkLayers.Meter(status["FR_" .. name], name) end
+	end
 
 	local route = ui.QuestUI.FR_QuestTracker
 	route.AnchorPoint, route.Position, route.Size = Vector2.new(0, 1), UDim2.fromScale(0.02, 0.88), UDim2.new(0.29, 0, 0, 138)
@@ -342,7 +358,7 @@ function Style.Apply(ui)
 			Style.Open(toast)
 			toast.Visible, toast.Size = false, UDim2.new(1, -4, 0, 72)
 			toast.TL_Title.Position, toast.TL_Title.Size = UDim2.fromOffset(12, 8), UDim2.new(1, -24, 0, 20)
-			toast.TL_Title.Font, toast.TL_Title.TextSize = Theme.Typography.StrongFont, 13
+			toast.TL_Title.Font, toast.TL_Title.TextSize = Theme.Typography.TitleFont, 18
 			toast.TL_Message.Position, toast.TL_Message.Size = UDim2.fromOffset(12, 31), UDim2.new(1, -24, 0, 33)
 			toast.TL_Message.TextSize, toast.TL_Message.TextYAlignment = 12, Enum.TextYAlignment.Top
 		end

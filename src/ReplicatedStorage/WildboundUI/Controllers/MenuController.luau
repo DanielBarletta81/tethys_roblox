@@ -38,11 +38,28 @@ function Menu.new(ui, inventory, inputMode)
 		frame.Size, frame.LayoutOrder, frame.ZIndex = UDim2.new(0.9, 0, 0, 48), index, 71
 		frame.Parent = self.actions
 		Style.Panel(frame)
-		frame.TL_Label.ZIndex, frame.TL_Label.TextSize = 72, 16
+		frame.TL_Label.ZIndex, frame.TL_Label.TextSize = 72, 20
+		frame.TL_Label.Font, frame.TL_Label.TextColor3 = Style.Theme.Typography.TitleFont, Style.Theme.Colors.Bone
 		if name ~= "Resume" then
 			Style.Icon(name == "Codex" and "Journal" or name, "IL_MenuGlyph", frame, UDim2.fromOffset(12, 8), UDim2.fromOffset(32, 32))
 			frame.TL_Label.Position, frame.TL_Label.Size = UDim2.fromOffset(54, 0), UDim2.new(1, -66, 1, 0)
 			frame.TL_Label.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		if Style.Assets.Variant() == "Wildbound" then
+			local skin = Style.Artwork.Band(frame, "Button", "FR_ButtonArtwork")
+			if skin then
+				frame.TL_Label.ZIndex = frame.ZIndex + 3
+				local glyph = frame:FindFirstChild("IL_MenuGlyph")
+				if glyph then
+					glyph.ZIndex, glyph.Position = frame.ZIndex + 3, UDim2.fromOffset(46,8)
+					frame.TL_Label.Position, frame.TL_Label.Size = UDim2.fromOffset(88,0), UDim2.new(1,-114,1,0)
+				end
+				local function fallback()
+					local ready = skin:GetAttribute("WB_ArtworkLoaded") == true
+					frame.BackgroundTransparency, frame.US_Border.Transparency = ready and 1 or 0.34, ready and 1 or 0.28
+				end
+				skin:GetAttributeChangedSignal("WB_ArtworkLoaded"):Connect(fallback); fallback()
+			end
 		end
 		self.buttons[name] = Style.Button(frame, function()
 			if name == "Resume" then self:SetOpen(false)

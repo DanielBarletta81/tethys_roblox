@@ -4,7 +4,8 @@ local Inventory = {}
 Inventory.__index = Inventory
 
 function Inventory.new(player, ui)
-	local self = setmetatable({ player = player, ui = ui, items = {}, slots = {}, watchers = {}, selectedId = nil }, Inventory)
+	local self = setmetatable({ player = player, ui = ui, items = {}, slots = {}, watchers = {}, connections = {}, selectedId = nil }, Inventory)
+	local function connect(signal, callback) table.insert(self.connections, signal:Connect(callback)) end
 	self.quickbar = ui.InventoryUI.FR_Quickbar
 	self.quickbar.UL_Slots:Destroy() -- Only this runtime clone; radial slots use Scale.
 	Style.New("UIAspectRatioConstraint", "AR_Radial", self.quickbar, { AspectRatio = 1, DominantAxis = Enum.DominantAxis.Width })
@@ -23,10 +24,31 @@ function Inventory.new(player, ui)
 		local name = Style.Text("TL_Name", slot, "", UDim2.fromScale(0.06, 0.04), UDim2.fromScale(0.88, 0.65), 11)
 		name.TextXAlignment = Enum.TextXAlignment.Center
 		name.TextTruncate = Enum.TextTruncate.AtEnd
+		local image = Style.New("ImageLabel", "IL_ItemImage", slot, {
+			BackgroundTransparency = 1, BorderSizePixel = 0, ImageTransparency = 0, Visible = false,
+			Position = UDim2.fromScale(0.16,0.06), Size = UDim2.fromScale(0.68,0.6), ZIndex = slot.ZIndex + 2,
+		})
+		local function imageFallback() name.Visible = not (image.Visible and image.IsLoaded) end
+		image:GetPropertyChangedSignal("IsLoaded"):Connect(imageFallback)
+		image:GetPropertyChangedSignal("Visible"):Connect(imageFallback)
 		slot.TL_Count.Position, slot.TL_Count.Size = UDim2.fromScale(0.4, 0.72), UDim2.fromScale(0.54, 0.24)
 		slot.TL_Count.TextSize = 10
 		Style.Text("TL_Key", slot, tostring(index), UDim2.fromScale(0.06, 0.72), UDim2.fromScale(0.3, 0.24), 10).TextColor3 = Style.Theme.Colors.Ash
 		Style.Button(slot, function() self:SelectQuick(index) end)
+	end
+	if Style.Assets.Variant() == "Wildbound" then
+		local skin = Style.Artwork.Whole(self.quickbar, "Quickbar", "IL_QuickbarArtwork")
+		if skin then
+			local function layoutArtwork()
+				self.quickbar:SetAttribute("WB_QuickArtworkLoaded", skin.IsLoaded)
+				self.center.Position = skin.IsLoaded and UDim2.fromScale(0.27,0.36) or UDim2.fromScale(0.32,0.38)
+				self.center.Size = skin.IsLoaded and UDim2.fromScale(0.46,0.12) or UDim2.fromScale(0.36,0.24)
+				for index, slot in ipairs(self.slots) do slot.BackgroundTransparency = skin.IsLoaded and index <= 3 and 1 or 0.68 end
+				self:Refresh()
+			end
+			connect(skin:GetPropertyChangedSignal("IsLoaded"), layoutArtwork)
+			task.defer(function() if not self.dead then layoutArtwork() end end)
+		end
 	end
 
 	self.panel = Style.New("Frame", "FR_InventoryPanel", ui.InventoryUI, {
@@ -56,18 +78,19 @@ function Inventory.new(player, ui)
 	self:_watch("inventory", player:FindFirstChild("Inventory"))
 	self:_watch("backpack", player:FindFirstChild("Backpack"))
 	self:_watch("character", player.Character)
-	player.ChildAdded:Connect(function(child)
+	connect(player.ChildAdded, function(child)
 		if child.Name == "Inventory" then self:_watch("inventory", child)
 		elseif child:IsA("Backpack") then self:_watch("backpack", child) end
 	end)
-	player.ChildRemoved:Connect(function(child)
+	connect(player.ChildRemoved, function(child)
 		if child.Name == "Inventory" then self:_watch("inventory", nil)
 		elseif child:IsA("Backpack") then self:_watch("backpack", nil) end
 	end)
-	player.CharacterAdded:Connect(function(character) self:_watch("character", character) end)
-	ui:GetAttributeChangedSignal("WB_PresentationProfile"):Connect(function() self:_refreshQuickVisibility() end)
-	ui:GetAttributeChangedSignal("WB_MenuOpen"):Connect(function() self:_refreshQuickVisibility() end)
-	ui:GetAttributeChangedSignal("WB_IntroActive"):Connect(function() self:_refreshQuickVisibility() end)
+	connect(player.CharacterAdded, function(character) self:_watch("character", character) end)
+	connect(ui:GetAttributeChangedSignal("WB_PresentationProfile"), function() self:_refreshQuickVisibility() end)
+	connect(ui:GetAttributeChangedSignal("WB_MenuOpen"), function() self:_refreshQuickVisibility() end)
+	connect(ui:GetAttributeChangedSignal("WB_IntroActive"), function() self:_refreshQuickVisibility() end)
+	connect(ui.Destroying, function() self:Destroy() end)
 	self:Refresh()
 	return self
 end
@@ -79,24 +102,38 @@ function Inventory:_refreshQuickVisibility()
 end
 
 function Inventory:_queueRefresh()
-	if self.queued then return end
+	if self.dead or self.queued then return end
 	self.queued = true
-	task.defer(function() self.queued = false; self:Refresh() end)
+	task.defer(function() self.queued = false; if not self.dead then self:Refresh() end end)
 end
 
 function Inventory:_watch(key, container)
+	if self.dead then return end
 	for _, connection in ipairs(self.watchers[key] or {}) do connection:Disconnect() end
 	local connections = {}
 	self.watchers[key] = connections
 	if container then
 		local values = {}
 		local function watch(child)
-			if child:IsA("IntValue") then values[child] = child.Changed:Connect(function() self:_queueRefresh() end); table.insert(connections, values[child]) end
+			if not child:IsA("IntValue") and not child:IsA("Tool") then return end
+			local watched = {}
+			values[child] = watched
+			local function connect(signal)
+				local connection = signal:Connect(function() self:_queueRefresh() end)
+				table.insert(watched, connection); table.insert(connections, connection)
+			end
+			connect(child:GetAttributeChangedSignal("WB_InventoryImage"))
+			connect(child:GetPropertyChangedSignal(child:IsA("Tool") and "TextureId" or "Value"))
 		end
 		for _, child in ipairs(container:GetChildren()) do watch(child) end
 		table.insert(connections, container.ChildAdded:Connect(function(child) watch(child); self:_queueRefresh() end))
 		table.insert(connections, container.ChildRemoved:Connect(function(child)
-			if values[child] then values[child]:Disconnect(); values[child] = nil end
+			for _, connection in ipairs(values[child] or {}) do
+				connection:Disconnect()
+				local index = table.find(connections, connection)
+				if index then table.remove(connections, index) end
+			end
+			values[child] = nil
 			self:_queueRefresh()
 		end))
 	end
@@ -104,6 +141,7 @@ function Inventory:_watch(key, container)
 end
 
 function Inventory:Refresh()
+	if self.dead then return end
 	self.items = Data.Inventory(self.player)
 	self.quickItems = Data.QuickItems(self.items)
 	self.quickbar:SetAttribute("WB_VisibleSlots", math.min(#self.items, 4))
@@ -115,12 +153,15 @@ function Inventory:Refresh()
 		if item then
 			slot:SetAttribute("WB_ItemId", item.Id)
 			slot.TL_Name.Text, slot.TL_Count.Text = item.Label, "x" .. item.Count
+			Style.Assets.ApplyItem(slot.IL_ItemImage, item)
+			slot.TL_Name.Visible = not (slot.IL_ItemImage.Visible and slot.IL_ItemImage.IsLoaded)
 			local selected = item.Id == self.selectedId or (item.Tool and item.Tool.Parent == self.player.Character)
 			slot.US_Border.Color = selected and Style.Theme.Colors.BronzeBright or Style.Theme.Colors.Bronze
-			slot.US_Border.Transparency = selected and 0 or 0.28
+			slot.US_Border.Transparency = selected and 0 or (self.quickbar:GetAttribute("WB_QuickArtworkLoaded") == true and index <= 3 and 1 or 0.28)
 		else
 			slot:SetAttribute("WB_ItemId", nil)
 			slot.TL_Name.Text, slot.TL_Count.Text = "", ""
+			Style.Assets.ApplyItem(slot.IL_ItemImage, nil)
 		end
 	end
 	if self.panel.Visible then self:_renderList() end
@@ -139,7 +180,7 @@ function Inventory:SelectQuick(index)
 	local token = self.centerToken
 	self.center.Text = item.Label
 	task.delay(1.8, function()
-		if token == self.centerToken then self.center.Text = "+"; self:_refreshQuickVisibility() end
+		if not self.dead and token == self.centerToken then self.center.Text = "+"; self:_refreshQuickVisibility() end
 	end)
 end
 
@@ -161,7 +202,17 @@ function Inventory:_renderList()
 	for index, item in ipairs(self.items) do
 		local row = Style.New("Frame", "FR_Item_" .. index, self.list, { Size = UDim2.new(1, -8, 0, 48), LayoutOrder = index, ZIndex = 62 })
 		Style.Panel(row)
-		Style.Text("TL_Name", row, item.Label, UDim2.fromOffset(10, 0), UDim2.new(0.72, -10, 1, 0), 14)
+		local image = Style.New("ImageLabel", "IL_ItemImage", row, {
+			BackgroundTransparency = 1, BorderSizePixel = 0, Position = UDim2.fromOffset(8,6),
+			Size = UDim2.fromOffset(36,36), ZIndex = row.ZIndex + 1,
+		})
+		Style.Assets.ApplyItem(image, item)
+		local name = Style.Text("TL_Name", row, item.Label, UDim2.fromOffset(10, 0), UDim2.new(0.72, -10, 1, 0), 14)
+		local function imageLayout()
+			local inset = image.Visible and image.IsLoaded and 52 or 10
+			name.Position, name.Size = UDim2.fromOffset(inset,0), UDim2.new(0.72,-inset,1,0)
+		end
+		image:GetPropertyChangedSignal("IsLoaded"):Connect(imageLayout); imageLayout()
 		local count = Style.Text("TL_Count", row, "x" .. item.Count, UDim2.fromScale(0.72, 0), UDim2.new(0.28, -10, 1, 0), 13)
 		count.TextXAlignment = Enum.TextXAlignment.Right
 		local button = Style.Button(row, function() self:Select(index) end)
@@ -194,10 +245,21 @@ function Inventory:Select(index)
 end
 
 function Inventory:SetOpen(open)
+	if self.dead then return end
 	if open and (self.ui:GetAttribute("WB_ReturnNoticeActive") or self.ui:GetAttribute("WB_IntroActive")) then return end
 	self.panel.Visible = open == true
 	if open then self:_renderList() end
 	if self.onOpenChanged then self.onOpenChanged(open == true) end
+end
+
+function Inventory:Destroy()
+	if self.dead then return end
+	self.dead = true
+	for _, connection in ipairs(self.connections) do connection:Disconnect() end
+	for _, connections in pairs(self.watchers) do
+		for _, connection in ipairs(connections) do connection:Disconnect() end
+	end
+	table.clear(self.connections); table.clear(self.watchers)
 end
 
 return Inventory

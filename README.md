@@ -31,6 +31,7 @@ The module layout follows Roblox services. Stateful services use small object in
 
 | Scope | Recorded result | Limit |
 | --- | --- | --- |
+| Player UI live layers | 15 UI / 11 art / 6 inventory Edit groups passed; separate item images/counts, readable fallbacks and serif headings installed | [Layer checkpoint](docs/engineering/player-artwork-layers.md); six new decorative PNG imports and live skin validation await accessible originals |
 | HUD1.6 location artwork | Seven uploads and matching installed sources; 13 UI / 10 art Edit groups passed | [Dated checkpoint](docs/engineering/location-artwork.md); Play entry and capture timed out, so Client loading/layout checks and save confirmation remain pending |
 | HUD1.5 PlayerGUI pass | 13 Edit / 16 effects / 8 GUI audit / 4 layout / 4 focus / 8 return-cue groups passed; native intro, cave prompt, title fixture and respawn checked | [Dated audit and screenshots](docs/engineering/player-gui-audit.md); assisted placement and virtual input do not establish unassisted route or physical device acceptance |
 | Scatter v1 | 14 Studio test groups; seeded Terrain placement and Clear/Undo checked | Cross-pass exclusion and clustering are deferred |

@@ -26,6 +26,17 @@ function Data.Label(name)
 	return ITEM_LABELS[name] or tostring(name):gsub("(%l)(%u)", "%1 %2"):gsub("_", " ")
 end
 
+function Data.ItemImage(object)
+	-- Optional, replicated presentation metadata. It never changes item identity.
+	local source = object:GetAttribute("WB_InventoryImage")
+	if source == nil and object:IsA("Tool") then source = object.TextureId end
+	if type(source) ~= "string" then return nil end
+	local id = source:match("^rbxassetid://(%d+)$")
+		or source:match("^https?://www%.roblox%.com/asset/%?id=(%d+)$")
+	if not id or not id:find("[1-9]") then return nil end
+	return "rbxassetid://" .. id
+end
+
 function Data.Vitals(player)
 	return {
 		Stamina = Data.Percent(player:GetAttribute("OL_Stamina")),
@@ -102,7 +113,7 @@ function Data.Inventory(player)
 	if inventory then
 		for _, value in ipairs(inventory:GetChildren()) do
 			if value:IsA("IntValue") and value.Value > 0 then
-				local item = { Id = value.Name, Label = Data.Label(value.Name), Count = value.Value }
+				local item = { Id = value.Name, Label = Data.Label(value.Name), Count = value.Value, Image = Data.ItemImage(value) }
 				byName[value.Name] = item
 				table.insert(items, item)
 			end
@@ -119,6 +130,7 @@ function Data.Inventory(player)
 						table.insert(items, item)
 					end
 					item.Tool = tool
+					item.Image = item.Image or Data.ItemImage(tool)
 				end
 			end
 		end

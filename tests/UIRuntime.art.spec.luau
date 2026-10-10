@@ -115,5 +115,17 @@ test("Only server-owned intake approach and landing phases request its reveal", 
 	end
 	assert(policy.OpeningLocation(nil) == nil)
 end)
+test("Live item images clear stale atlas rectangles and unavailable identities", function()
+	local image = Instance.new("ImageLabel")
+	image.ImageRectOffset, image.ImageRectSize = Vector2.new(256,256), Vector2.new(256,256)
+	assert(Assets.ApplyItem(image, {Id = "StoneSpear", Image = "rbxassetid://12345"}))
+	assert(image.Visible and image.ImageRectSize == Vector2.zero and image.ImageRectOffset == Vector2.zero)
+	assert(image:GetAttribute("WB_ItemImageId") == "StoneSpear" and image.ScaleType == Enum.ScaleType.Fit)
+	for _, item in ipairs({{}, {Id = "Unknown"}, {Image = "rbxassetid://0"}, {Image = "https://example.com/icon.png"}}) do
+		assert(not Assets.ApplyItem(image, item) and not image.Visible and image.Image == "")
+		assert(image:GetAttribute("WB_ItemImageId") == nil)
+	end
+	image:Destroy()
+end)
 gui:Destroy()
 return result

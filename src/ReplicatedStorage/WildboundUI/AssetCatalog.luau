@@ -1,6 +1,7 @@
 -- Approved icons, scene crops and brand art. Art never creates gameplay state.
 local Catalog = {}
 Catalog.LocationArtwork = require(script.Parent.LocationArtwork)
+Catalog.PlayerArtwork = require(script.Parent.PlayerArtwork)
 local wildboundOrder = {
 	"Health", "Stamina", "Thirst", "WaterExposure",
 	"Inventory", "Settings", "Journal", "Tracks",
@@ -122,8 +123,27 @@ function Catalog.ApplyScene(image, key, variant)
 	return true
 end
 
+function Catalog.ApplyItem(image, item)
+	local source = type(item) == "table" and item.Image
+	local id = type(source) == "string" and source:match("^rbxassetid://(%d+)$")
+	local valid = type(id) == "string" and id:find("[1-9]") ~= nil
+	image.Visible, image.Image = valid, valid and source or ""
+	image.ImageRectOffset, image.ImageRectSize = Vector2.zero, Vector2.zero
+	image:SetAttribute("UI_IconKey", nil)
+	image:SetAttribute("WB_ItemImageId", valid and item.Id or nil)
+	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0, Enum.ScaleType.Fit
+	return valid
+end
+
 function Catalog.ApplyBrand(image)
 	if Catalog.Variant() ~= "Wildbound" then image.Visible = false; return false end
+	local masthead = Catalog.PlayerArtwork.Masthead
+	if masthead.Image:match("^rbxassetid://%d+$") then
+		image.Image, image.ImageRectOffset, image.ImageRectSize = masthead.Image, Vector2.zero, Vector2.zero
+		image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0, Enum.ScaleType.Fit
+		image.Visible = true
+		return true
+	end
 	image.Image, image.ImageRectOffset, image.ImageRectSize = brand.Image, brand.Offset, brand.Size
 	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0, Enum.ScaleType.Fit
 	image.Visible = true
