@@ -325,7 +325,7 @@ function Style.Apply(ui)
 	status.FR_Thirst.FR_BarBack.FR_BarFill.BackgroundColor3 = Theme.Colors.MistTeal
 	status.FR_Exposure.FR_BarBack.FR_BarFill.BackgroundColor3 = Theme.Colors.Amber
 	if Assets.Variant() == "Wildbound" then
-		for _, name in ipairs({"Health", "Stamina", "Thirst"}) do ArtworkLayers.Meter(status["FR_" .. name], name) end
+		for _, name in ipairs({"Health", "Thirst", "Exposure"}) do ArtworkLayers.Meter(status["FR_" .. name], name) end
 	end
 
 	local route = ui.QuestUI.FR_QuestTracker

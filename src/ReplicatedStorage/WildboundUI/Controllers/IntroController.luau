@@ -17,38 +17,80 @@ function Intro.new(player, ui, inputMode)
 	self.Root = Style.New("Frame", "FR_Intro", self.Screen, {
 		Size = UDim2.fromScale(1,1), BackgroundColor3 = Style.Theme.Colors.Obsidian, BorderSizePixel = 0,
 	})
-	self.Scene = Style.Scene(self.Root, "IL_IntroScene", "SkyCity", 0.15)
+	self.Scene = Style.Scene(self.Root, "IL_IntroScene", "SkyCity", 0.05)
 	Style.Assets.ApplyIntroScene(self.Scene)
 	self.Scene.UG_Atmosphere.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.2),
 		NumberSequenceKeypoint.new(0.5,0.05),NumberSequenceKeypoint.new(1,0.85)})
 	self.Shade = Style.New("Frame", "FR_Shade", self.Root, {
 		Size = UDim2.fromScale(1,1), BackgroundColor3 = Style.Theme.Colors.Obsidian,
-		BackgroundTransparency = 0.12, BorderSizePixel = 0, ZIndex = 2,
+		BackgroundTransparency = 0.18, BorderSizePixel = 0, ZIndex = 2,
 	})
 	Style.New("UIGradient", "UG_Shade", self.Shade, {
 		Rotation = 90, Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.45),
 			NumberSequenceKeypoint.new(0.5,0.25),NumberSequenceKeypoint.new(1,0.02)}),
 	})
+	self.LeftContrast = Style.New("Frame", "FR_LeftContrast", self.Root, {
+		Size = UDim2.new(0.7, 0, 1, 0), BackgroundColor3 = Style.Theme.Colors.Obsidian,
+		BackgroundTransparency = 0.3, BorderSizePixel = 0, ZIndex = 2,
+	})
+	Style.New("UIGradient", "UG_LeftContrast", self.LeftContrast, {
+		Rotation = 0, Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.05),
+			NumberSequenceKeypoint.new(0.55, 0.58),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+	})
 	self.Logo = Style.New("ImageLabel", "IL_TethysMasthead", self.Root, {
-		AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.4),
-		Size = UDim2.new(0.82,0,0,216), BackgroundTransparency = 1, ZIndex = 3,
+		AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.26),
+		Size = UDim2.new(0.74,0,0,176), BackgroundTransparency = 1, ZIndex = 3,
 	})
 	Style.Fit(self.Logo, 480, 216)
 	if not Style.Assets.ApplyBrand(self.Logo) then
 		local brand = Style.Brand(self.Root)
-		brand.AnchorPoint, brand.Position = Vector2.new(0.5,0.5), UDim2.fromScale(0.5,0.4)
+		brand.AnchorPoint, brand.Position = Vector2.new(0.5,0.5), UDim2.fromScale(0.5,0.26)
 	end
-	self.Motto = Style.OutlinedText(Style.Text("TL_Motto", self.Root,
-		"ORDOVIC RIVER", UDim2.fromScale(0.1,0.61), UDim2.new(0.8,0,0,40), 30))
+	self.TitleCard = Style.New("Frame", "FR_TitleCard", self.Root, {
+		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.48),
+		Size = UDim2.new(0.74, 0, 0, 170),
+		BackgroundColor3 = Style.Theme.Colors.Obsidian, BackgroundTransparency = 0.22,
+		BorderSizePixel = 0, ZIndex = 3,
+	})
+	Style.Panel(self.TitleCard)
+
+	self.Kicker = Style.OutlinedText(Style.Text("TL_Kicker", self.TitleCard,
+		"WORLD OF TETHYS", UDim2.fromOffset(16, 12), UDim2.new(1, -32, 0, 20), 14))
+	self.Kicker.Font = Style.Theme.Typography.StrongFont
+	self.Kicker.TextColor3 = Style.Theme.Colors.BronzeBright
+	self.Kicker.TextXAlignment, self.Kicker.ZIndex = Enum.TextXAlignment.Center, 4
+
+	self.Divider = Style.New("Frame", "FR_TitleDivider", self.TitleCard, {
+		AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0),
+		Size = UDim2.new(1, -46, 0, 1),
+		BackgroundColor3 = Style.Theme.Colors.Bronze, BackgroundTransparency = 0.34,
+		BorderSizePixel = 0, ZIndex = 4,
+	})
+	self.Divider.Position = UDim2.fromOffset(23, 30)
+
+	self.Motto = Style.OutlinedText(Style.Text("TL_Motto", self.TitleCard,
+		"WILDBOUND", UDim2.fromOffset(16, 36), UDim2.new(1, -32, 0, 54), 42))
 	self.Motto.Font = Style.Theme.Typography.TitleFont
-	self.Motto.TextXAlignment, self.Motto.ZIndex = Enum.TextXAlignment.Center, 3
-	self.Context = Style.OutlinedText(Style.Text("TL_LocationContext", self.Root, "Arnn Ridge",
-		UDim2.fromScale(0.1,0.69), UDim2.new(0.8,0,0,24), 15))
-	self.Context.TextXAlignment, self.Context.ZIndex = Enum.TextXAlignment.Center, 3
+	self.Motto.TextXAlignment, self.Motto.ZIndex = Enum.TextXAlignment.Center, 4
+
+	self.Context = Style.OutlinedText(Style.Text("TL_Context", self.TitleCard,
+		"WESTERN WORLD OF TETHYS", UDim2.fromOffset(16, 95), UDim2.new(1, -32, 0, 24), 16))
+	self.Context.Font = Style.Theme.Typography.StrongFont
+	self.Context.TextXAlignment, self.Context.ZIndex = Enum.TextXAlignment.Center, 4
+
+	self.ContextHint = Style.OutlinedText(Style.Text("TL_ContextHint", self.TitleCard,
+		"The world remains playable. This is a title presentation, not a location lock.",
+		UDim2.fromOffset(16, 120), UDim2.new(1, -32, 0, 24), 13))
+	self.ContextHint.TextColor3 = Style.Theme.Colors.Ash
+	self.ContextHint.TextXAlignment, self.ContextHint.ZIndex = Enum.TextXAlignment.Center, 4
+
 	self.Enter = Style.New("TextButton", "TB_EnterTethys", self.Root, {
-		AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.8),
-		Size = UDim2.new(0.8,0,0,52), Text = "ENTER TETHYS", Font = Style.Theme.Typography.TitleFont,
-		TextSize = 28, TextColor3 = Style.Theme.Colors.Bone, BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.84),
+		Size = UDim2.new(0.64,0,0,52), Text = "ENTER WILDBOUND", Font = Style.Theme.Typography.TitleFont,
+		TextSize = 27, TextColor3 = Style.Theme.Colors.Bone, BackgroundTransparency = 0.08,
 		BorderSizePixel = 0, ZIndex = 4,
 	})
 	Style.Fit(self.Enter, 300, 52)
@@ -56,7 +98,7 @@ function Intro.new(player, ui, inputMode)
 	Style.Button(self.Enter, function() self:Continue() end)
 	self.Enter.NextSelectionUp, self.Enter.NextSelectionDown = self.Enter, self.Enter
 	self.Enter.NextSelectionLeft, self.Enter.NextSelectionRight = self.Enter, self.Enter
-	self.Hint = Style.Text("TL_Input", self.Root, "", UDim2.fromScale(0.1,0.88), UDim2.new(0.8,0,0,30), 14)
+	self.Hint = Style.Text("TL_Input", self.Root, "", UDim2.fromScale(0.1,0.92), UDim2.new(0.8,0,0,30), 14)
 	self.Hint.TextXAlignment, self.Hint.TextColor3, self.Hint.ZIndex = Enum.TextXAlignment.Center, Style.Theme.Colors.Ash, 4
 	local function inputHint(mode)
 		self.Hint.Text = mode == "Controller" and "A · Enter" or mode == "Touch" and "Tap to enter" or "Enter · Begin"
@@ -68,9 +110,18 @@ function Intro.new(player, ui, inputMode)
 	inputHint(inputMode:GetMode())
 	table.insert(self.Connections, inputMode:ModeChangedSignal():Connect(inputHint))
 	local function layout()
-		local short = self.Screen.AbsoluteSize.Y < 500
-		self.Logo.Size = UDim2.new(0.82,0,0,short and 130 or 216)
-		self.Motto.TextSize = self.Screen.AbsoluteSize.X < 500 and 24 or 30
+		local short = self.Screen.AbsoluteSize.Y < 590
+		local narrow = self.Screen.AbsoluteSize.X < 760
+		self.Logo.Size = UDim2.new(narrow and 0.9 or 0.74,0,0,short and 136 or 176)
+		self.Logo.Position = UDim2.fromScale(0.5, short and 0.24 or 0.26)
+		self.TitleCard.Size = UDim2.new(narrow and 0.9 or 0.74, 0, 0, short and 146 or 160)
+		self.TitleCard.Position = UDim2.fromScale(0.5, short and 0.45 or 0.48)
+		self.Motto.TextSize = narrow and 32 or short and 36 or 42
+		self.Context.TextSize = narrow and 13 or 16
+		self.ContextHint.Visible = not short
+		self.Enter.Size = UDim2.new(narrow and 0.82 or 0.64, 0, 0, 52)
+		self.Enter.Position = UDim2.fromScale(0.5, short and 0.8 or 0.84)
+		self.Hint.Position = UDim2.fromScale(0.1, short and 0.9 or 0.92)
 	end
 	table.insert(self.Connections, self.Screen:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout))
 	layout()

@@ -10,6 +10,10 @@
 !/tools/
 !/docs/
 !/.github/
+!/.vite/
+.env
+dist/
+node_modules/
 
 /docs/*
 !/docs/engineering/

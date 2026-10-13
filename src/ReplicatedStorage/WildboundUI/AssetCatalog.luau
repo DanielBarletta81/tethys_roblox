@@ -63,7 +63,7 @@ local regionalScenes = {
 	Archyda = regionalRect(970, 272, 228, 204), DanianDelta = regionalRect(1208, 272, 229, 204),
 }
 -- Retain the earlier composition's identity for existing presentation references.
-Catalog.OpeningReference = {Image = "rbxassetid://78866242256500", Width = 1024, Height = 576, SourceWidth = 1672, SourceHeight = 941}
+Catalog.OpeningReference = {Image = "rbxassetid://126814394907037", Width = 1024, Height = 576, SourceWidth = 1672, SourceHeight = 941}
 for key, descriptor in pairs(regionalScenes) do scenes.Wildbound[key] = descriptor end
 -- Earlier atlas dimensions were measured in Studio; new sheet crops are checked visually.
 local symbols, regions = {}, {}
@@ -90,6 +90,29 @@ end
 local function resolveVariant(requested)
 	local name = requested or Catalog.Variant()
 	return Catalog.Variants[name] and name or "Wildbound"
+end
+
+local function isImageId(image)
+	return type(image) == "string" and image:match("^rbxassetid://%d+$") ~= nil
+end
+
+function Catalog.ResolveIntroTitleCardImage()
+	local override = script.Parent:GetAttribute("WB_IntroTitleCardImage")
+	if isImageId(override) then
+		return override
+	end
+
+	local menu = Catalog.LocationArtwork.MENU_WILDBOUND
+	if menu and isImageId(menu.Image) then
+		return menu.Image
+	end
+
+	if Catalog.OpeningReference and isImageId(Catalog.OpeningReference.Image) then
+		return Catalog.OpeningReference.Image
+	end
+
+	local ordovic = Catalog.LocationArtwork.ORDOVIC_RIVER
+	return ordovic and ordovic.Image or nil
 end
 
 function Catalog.Get(key, variant)
@@ -152,8 +175,13 @@ end
 
 function Catalog.ApplyIntroScene(image)
 	if Catalog.Variant() ~= "Wildbound" then return Catalog.ApplyScene(image, "SkyCity") end
-	image.Image, image.ImageRectOffset, image.ImageRectSize = Catalog.LocationArtwork.ORDOVIC_RIVER.Image, Vector2.zero, Vector2.zero
-	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0.12, Enum.ScaleType.Crop
+	local introImage = Catalog.ResolveIntroTitleCardImage()
+	if not isImageId(introImage) then
+		return Catalog.ApplyScene(image, "SkyCity")
+	end
+	image.Image, image.ImageRectOffset, image.ImageRectSize = introImage, Vector2.zero, Vector2.zero
+	image.ImageColor3, image.ImageTransparency, image.ScaleType = Color3.new(1,1,1), 0.05, Enum.ScaleType.Crop
+	image:SetAttribute("UI_IntroCardImage", introImage)
 	image.Visible = true
 	return true
 end

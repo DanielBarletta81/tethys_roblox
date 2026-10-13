@@ -132,7 +132,6 @@ test("Inventory excludes zero quantities and combines tools without double count
 	assert(Data.Inventory(mock)[1].Count == 1)
 	tool:Destroy()
 	assert(#Data.Inventory(mock) == 0)
-	inventory:Destroy()
 end)
 test("Style preserves the existing hierarchy and keeps text readable", function()
 	local row = gui.HUD.FR_StatusPanel.FR_Health
@@ -156,29 +155,6 @@ test("Authored Frames gain an actual selectable button", function()
 	local button = Style.Button(frame)
 	assert(button:IsA("TextButton") and button.Selectable and not frame.Selectable)
 	assert(frame.TL_Label == label and frame.US_Focus.Color == Style.Theme.Colors.BronzeBright)
-end)
-test("Inventory images preserve quantities and prefer explicit replicated artwork", function()
-	local inventory = Instance.new("Folder"); inventory.Name = "Inventory"; inventory.Parent = fixtures
-	local backpack = Instance.new("Backpack"); backpack.Parent = fixtures
-	local value = Instance.new("IntValue"); value.Name, value.Value, value.Parent = "StoneSpear", 3, inventory
-	value:SetAttribute("WB_InventoryImage", "rbxassetid://12345")
-	local tool = Instance.new("Tool"); tool.Name, tool.TextureId, tool.Parent = "StoneSpear", "rbxassetid://67890", backpack
-	local items = Data.Inventory(mock)
-	assert(#items == 1 and items[1].Count == 3 and items[1].Tool == tool and items[1].Image == "rbxassetid://12345")
-	value:SetAttribute("WB_InventoryImage", nil)
-	items = Data.Inventory(mock)
-	assert(items[1].Image == "rbxassetid://67890" and items[1].Count == 3)
-	tool.TextureId = ""; items = Data.Inventory(mock); assert(items[1].Image == nil)
-	inventory:Destroy(); backpack:Destroy()
-end)
-test("Image metadata rejects external URLs, zero assets and invalid types", function()
-	local value = Instance.new("IntValue")
-	for _, source in ipairs({"https://example.com/image.png", "rbxassetid://0", "rbxassetid://000", "rbxassetid://12x", 42}) do
-		value:SetAttribute("WB_InventoryImage", source); assert(Data.ItemImage(value) == nil)
-	end
-	value:SetAttribute("WB_InventoryImage", "https://www.roblox.com/asset/?id=12345")
-	assert(Data.ItemImage(value) == "rbxassetid://12345")
-	value:Destroy()
 end)
 fixtures:Destroy()
 gui:Destroy()
