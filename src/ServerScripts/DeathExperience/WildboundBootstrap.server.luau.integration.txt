@@ -1,5 +1,0 @@
-Add this line after the existing RuntimeService and TriggerService requires in ServerScriptService.WildboundServer.WildboundBootstrap:
-
-require(game.ServerScriptService:WaitForChild("DeathExperience"):WaitForChild("Service")).Start()
-
-This starts the server-owned ledger once. Do not add another bootstrap Script, an XP remote or capabilities.

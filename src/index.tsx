@@ -1,7 +1,7 @@
 // src/index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ELOCommandCenter } from './components/Front_End_Dashboard/ELOCommandCenter.js';
+import { ELOCommandCenter } from './components/ELOCommandCenter.js';
 import { TethysTelemetryDashboard } from './components/TethysTelemetryDashboard.js';
 import { TethysPredatorDash } from './components/TethysPredatorDash.js';
 import { TethysProfileEditor } from './components/TethysProfileEditor.js';
