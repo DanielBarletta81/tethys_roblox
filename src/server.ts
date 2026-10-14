@@ -42,6 +42,152 @@ interface LiveServerInstanceMetadata {
     serverUptimeSeconds: number;
     lastPingTimestamp: string;
 }
+interface FlightTelemetryInput {
+    serverJobId: string;
+    altitudeStuds: number;
+    coordinateX: number;
+    coordinateZ: number;
+    currentSpeedKnots: number;
+}
+
+interface FlightAeroMetricsResponse {
+    success: boolean;
+    thermalUpdraftForce: number; // -- Upward velocity booster multiplier
+    ashTurbulenceVector: { x: number; y: number; z: number };
+    emberDensitySpawnRate: number;// -- Scales local screen particle effects
+    vestigeWardenHarpoonActive: boolean;// -- Triggers capture alert sequences
+    skyCityExitVisible: boolean;   //
+}
+
+interface PlayerSurvivalSession {
+    userId: string;
+    currentZone: 'Arnn_Ridge_Cave' | 'Ordovic_Rapids' | 'Riverbank_Shallows' | 'First_Sort_Decision' | 'Lower_Tiers_Gate';
+    hasTorchesLit: boolean;
+    isFireDampenedWithAlgae: boolean;
+    fireSkillLevel: number;
+    healthPoints: number;
+    inventory: string[];
+    chosenRoute: 'None' | 'Human_Rescue_Cage' | 'Ordovic_River_Deep_Run';
+}
+
+const activeSurvivalRegistries = new Map<string, PlayerSurvivalSession>();
+
+/**
+ * @route   POST /api/v1/wildbound/survival/fire-ignite
+ * @desc    Processes hyper-oxygenated fire-lighting mechanics.
+ *          If players are impatient or forget algae oil, a flash fire kills them.
+ */
+app.post('/api/v1/wildbound/survival/fire-ignite', (req: Request, res: Response) => {
+    const { userId, useAlgaeOil, patienceTicks } = req.body;
+
+    if (!userId) return res.status(400).json({ success: false, error: 'Missing UserId tracking registration.' });
+
+    let playerSession = activeSurvivalRegistries.get(userId) || {
+        userId, currentZone: 'Arnn_Ridge_Cave', hasTorchesLit: false, isFireDampenedWithAlgae: false,
+        fireSkillLevel: 1, healthPoints: 100, inventory: [], chosenRoute: 'None'
+    };
+
+    // HYPER-OXYGENATED COMBUSTION LOGIC
+    if (!useAlgaeOil) {
+        playerSession.healthPoints = 0; // FLASH FIRE FATALITY
+        activeSurvivalRegistries.set(userId, playerSession);
+        return res.status(200).json({
+            success: false,
+            fatalityTriggered: true,
+            error: "💥 FLASH FIRE! The hyper-oxygenated atmosphere exploded the open spark. Flame suppressed failure."
+        });
+    }
+
+    if (patienceTicks < 3) {
+        playerSession.healthPoints -= 45; // Severe burn injury
+        activeSurvivalRegistries.set(userId, playerSession);
+        return res.status(200).json({
+            success: false,
+            fatalityTriggered: false,
+            healthDamage: 45,
+            error: "🔥 IMPATIENT IGNITION: The flame flared violently before the algae oil could suppress the combustion."
+        });
+    }
+
+    playerSession.hasTorchesLit = true;
+    playerSession.isFireDampenedWithAlgae = true;
+    playerSession.fireSkillLevel += 1;
+    activeSurvivalRegistries.set(userId, playerSession);
+
+    return res.status(200).json({
+        success: true,
+        fatalityTriggered: false,
+        message: "🟢 Fire Stabilized. The algae oil gives the flame a peculiar, emerald-tinted prehistoric glow.",
+        updatedSession: playerSession
+    });
+});
+
+/**
+ * @route   POST /api/v1/wildbound/survival/zone-update
+ * @desc    Tracks player state transitions across cinematic sequences
+ */
+app.post('/api/v1/wildbound/survival/zone-update', (req: Request, res: Response) => {
+    const { userId, targetZone, applyInjury, routeSelection } = req.body;
+
+    let playerSession = activeSurvivalRegistries.get(userId) || {
+        userId, currentZone: 'Arnn_Ridge_Cave', hasTorchesLit: false, isFireDampenedWithAlgae: false,
+        fireSkillLevel: 1, healthPoints: 100, inventory: [], chosenRoute: 'None'
+    };
+
+    playerSession.currentZone = targetZone;
+    if (applyInjury) playerSession.healthPoints = Math.max(10, playerSession.healthPoints - applyInjury);
+    if (routeSelection) playerSession.chosenRoute = routeSelection;
+
+    activeSurvivalRegistries.set(userId, playerSession);
+    return res.status(200).json({ success: true, currentSession: playerSession });
+});
+
+/**
+ * @route   POST /api/v1/tethys/flight/aero-calculate
+ * @desc     Computes aerodynamic stress forces for Stryker's flight live over the wire
+ *           Bypasses Roblox server CPU processing completely
+ */
+app.post('/api/v1/tethys/flight/aero-calculate', (req: Request, res: Response) => {
+    const { serverJobId, altitudeStuds, coordinateX, coordinateZ, currentSpeedKnots } = req.body as FlightTelemetryInput;
+
+    if (altitudeStuds === undefined || coordinateX === undefined) {
+        return res.status(400).json({ success: false, error: 'Missing core flight coordinates matrix.' });
+    }
+
+    // 1. THERMAL LIFTOFF CALCULUS: The closer Stryker flies to the hot Watcher Volcano, the higher the thermal lift
+    const distanceToVolcano = Math.sqrt(Math.pow(coordinateX - (-8000), 2) + Math.pow(coordinateZ - (-8000), 2));
+    let thermalLift = 0;
+    
+    if (distanceToVolcano < 4000 && altitudeStuds < 5000) {
+        // Massive thermal elevator vector pumping velocity upward near the volcanic chimney core
+        thermalLift = Math.max(10, 50 - (distanceToVolcano / 100));
+    }
+
+    // 2. ASH TURBULENCE NOISE FLUIDITY: High speed + high altitude triggers severe buffeting
+    const turbulenceIntensity = (altitudeStuds > 2000 ? (altitudeStuds / 100) : 5) * (currentSpeedKnots / 30);
+    const ashTurbulence = {
+        x: (Math.random() - 0.5) * turbulenceIntensity,
+        y: (Math.random() - 0.5) * (thermalLift > 0 ? turbulenceIntensity * 2 : turbulenceIntensity),
+        z: (Math.random() - 0.5) * turbulenceIntensity
+    };
+
+    // 3. VESTIGE WARDEN HARPOON RANGE MATRIX: Guard forces near Sky City try to pull him back
+    const distanceToSkyCity = Math.sqrt(Math.pow(coordinateX - 5000, 2) + Math.pow(coordinateZ - 5000, 2));
+    const harpoonThreat = distanceToSkyCity < 2500 && altitudeStuds < 1500;
+
+    // 4. LORE EXIT DISCOVERY HORIZON SIGNALS
+    // Once Stryker reaches a critical high scouting altitude, he spots the hidden path
+    const targetExitAltitudeBreached = altitudeStuds >= 3500;
+
+    return res.status(200).json({
+        success: true,
+        thermalUpdraftForce: thermalLift,
+        ashTurbulenceVector: ashTurbulence,
+        emberDensitySpawnRate: altitudeStuds > 2500 ? Math.min(100, (altitudeStuds - 2000) / 10) : 0,
+        vestigeWardenHarpoonActive: harpoonThreat,
+        skyCityExitVisible: targetExitAltitudeBreached
+    } as FlightAeroMetricsResponse);
+});
 
 export interface SanitizedTethysLoreNode {
     nodeId: number;

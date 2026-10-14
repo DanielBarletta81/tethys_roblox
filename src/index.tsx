@@ -6,14 +6,18 @@ import { TethysTelemetryDashboard } from './components/TethysTelemetryDashboard.
 import { TethysPredatorDash } from './components/TethysPredatorDash.js';
 import { TethysProfileEditor } from './components/TethysProfileEditor.js';
 import { TethysMetricsTracker } from './components/TethysMetricsTracker.js';
-// IMPORT CHECK: Insert our newly compiled infrastructure component mapping
 import { TethysClusterTopography } from './components/TethysClusterTopography.js';
+// IMPORT CHECK: Insert our newly compiled map customizer widget
+import { TethysMapCustomizer } from './components/TethysMapCustomizer.js';
 
 const App: React.FC = () => {
     return (
         <div style={{ backgroundColor: '#030712', minHeight: '100vh', padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Primary Control Vector Matrix Desk */}
             <ELOCommandCenter />
+
+            {/* Live Ops Spatial Geometry Customizer Tool Override Panel */}
+            <TethysMapCustomizer />
 
             {/* Global Container Infrastructure Table Workspace Expansion */}
             <TethysClusterTopography />
