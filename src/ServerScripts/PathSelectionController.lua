@@ -3,9 +3,11 @@
 -- Manages immediate visual inputs feedback loop layers and invokes server pipeline events
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CurrentButton = script.Parent as TextButton
+-- FIX: Upgraded from 'as TextButton' to standard Luau strict double-colon casting
+local CurrentButton = script.Parent :: TextButton
 
-local RequestPathFunction = ReplicatedStorage:WaitForChild("RequestPathAlignment") as RemoteFunction
+-- FIX: Upgraded from 'as RemoteFunction' to standard Luau strict double-colon casting
+local RequestPathFunction = ReplicatedStorage:WaitForChild("RequestPathAlignment") :: RemoteFunction
 
 local function onConfirmButtonClicked()
 	-- Disable the interaction interface immediately to prevent double-click transaction flooding
