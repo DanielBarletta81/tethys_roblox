@@ -11,9 +11,12 @@
 !/docs/
 !/.github/
 !/.vite/
-.env
-dist/
+.gitignore
 node_modules/
+dist/
+.env
+.DS_Store
+*.log
 
 /docs/*
 !/docs/engineering/
