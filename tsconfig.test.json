@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.api.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "isolatedModules": true
+  },
+  "include": [
+    "backend/**/*.test.ts"
+  ],
+  "exclude": []
+}

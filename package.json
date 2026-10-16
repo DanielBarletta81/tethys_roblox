@@ -1,0 +1,53 @@
+{
+  "name": "tethys-roblox-liveops",
+  "version": "1.0.0",
+  "description": "Roblox gameplay sources, Studio authoring tools, and the headless Tethys API",
+  "main": "backend/server.ts",
+  "type": "module",
+  "scripts": {
+    "dev:server": "tsx watch backend/start.ts",
+    "start": "tsx backend/start.ts",
+    "deploy:liveops": "tsx backend/scripts/deploy-liveops.ts",
+    "build:roblox": "rbxtsc -p tsconfig.json --rojo roblox-ts.project.json",
+    "watch:roblox": "rbxtsc -p tsconfig.json --rojo roblox-ts.project.json -w",
+    "typecheck:api": "tsc -p tsconfig.api.json",
+    "typecheck:roblox": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "npm run typecheck:api && npm run typecheck:roblox && npm run typecheck:tests",
+    "test": "jest --runInBand",
+    "check": "npm run typecheck && npm test && npm run build:roblox",
+    "typecheck:tests": "tsc -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@rbxts/roact": "^3.0.1",
+    "@rbxts/services": "^1.6.0",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@rbxts/compiler-types": "^3.0.0-types.0",
+    "@rbxts/types": "^1.0.958",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.2",
+    "typescript": "5.5.3",
+    "roblox-ts": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "keywords": [
+    "roblox",
+    "open-cloud",
+    "liveops",
+    "express",
+    "typescript"
+  ],
+  "author": "D.C. Barletta",
+  "license": "UNLICENSED"
+}

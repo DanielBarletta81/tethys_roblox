@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-15",
+  "placeId": 72645647440721,
+  "version": "CaveFlume_20261015",
+  "releaseStatus": "development prototype; not published",
+  "studioStructuralFixtures": {
+    "passed": 9,
+    "groups": [
+      "native cave shell surrounds an open room",
+      "spawn remains on the original dry shelf",
+      "upstream stays closed and observations have native prompts",
+      "flume mouth and route order",
+      "native water lies below the flume exit",
+      "current constrains only downstream and clears on leaving",
+      "slide restores posture on death and outside its volume",
+      "rescue rejects foreign prompts and distant or dead players",
+      "CMS mapping requires explicit ids and uses the existing schema"
+    ]
+  },
+  "assistedStudioChecks": {
+    "caveWalkAndNativeMineralPrompt": "passed; avatar walked to flume; observation activated with held E after assisted placement",
+    "flume": {
+      "peakMeasuredSpeedStudsPerSecond": 37.0856,
+      "physicsStateDurationSeconds": 2.3835,
+      "healthAtRiverExit": 100,
+      "returnedToNativeSwimming": true,
+      "method": "server placed avatar back at existing wake; native character navigation walked to mouth; sampled 220 records at nominal 0.05 seconds; total sampling 13.11 seconds"
+    },
+    "stryker": "assisted placement at reach; flyover flag and nearby crash flag; proxy finished exactly at CrashSite after 7.5 seconds",
+    "rescueAccept": "assisted placement at catch; held E; CITY; hold removed; restored WalkSpeed 16, JumpPower 50, JumpHeight 7.2, AutoRotate true",
+    "rescueRefuse": "fresh Play; assisted placement at catch; held Q; DOWNSTREAM; hold removed; same movement restored",
+    "refusalDeathResume": "native Humanoid death and automatic respawn; new character resumed REJECT_CASCADE, WalkSpeed 16, PlatformStand false; survival floor flag true",
+    "finalRuntimeConsole": "no opener capability or runtime errors in final valid Play; engine UIBlox warnings remained"
+  },
+  "portableChecks": {
+    "luauSyntaxFiles": 35,
+    "rojoBuild": "passed, local default.project.json; external existing backend modules were not started",
+    "repositoryWhitespaceCheck": "Whole-worktree check reported pre-existing whitespace in user-edited PathSelectionController, TethysGuiBridge and server.ts; these files were not changed by this pass."
+  },
+  "backend": {
+    "gatewayProbe": "localhost:3030 unavailable, curl returned connection failure",
+    "integration": "explicit LoreId plus LoreBodyText cache; existing cms-stream schema adapter; optional server-only BE_OpeningZoneMirror hook",
+    "liveWordPressVerified": false,
+    "persistence": "session only; no DataStore added"
+  },
+  "preserved": {
+    "spawnTransform": true,
+    "upstreamClosed": true,
+    "collapsedHiddenVeinClosed": true,
+    "authoredMountainsMoved": false,
+    "existingClientCapabilitiesChanged": false,
+    "historicalBuilderAndRuntimeCapabilitiesRestored": true,
+    "newRemotes": 0
+  },
+  "remainingAcceptance": [
+    "full unassisted 5,384-stud river run",
+    "physical controller and mobile device acceptance",
+    "multi-player arrival timing and Stryker crash observation",
+    "live gateway and explicit CMS node ID mappings",
+    "finished Stryker animation, cage hoist and audio; current scene uses marked proxies"
+  ],
+  "aiAssistance": "Codex authored cave/flume geometry and runtime adaptation, restored selected original Ordovic modules from commit 25162ac, ran assisted Studio checks.",
+  "checkpoint": {
+    "privateLocalFile": "output/cave-opener/Wildbound_CaveFlume_2026-10-15.rbxlx",
+    "bytes": 89247700,
+    "sha256": "246edbb44016987fc5e1a30f44cbad6400d97688eba9e4da737d61a18a6bfa41",
+    "exactSourceMatches": 32,
+    "published": false
+  }
+}

@@ -8,7 +8,10 @@ from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-ROOT_FILES = {'.gitignore', '.gitattributes', 'README.md', 'AGENTS.md'}
+ROOT_FILES = {'.gitignore', '.gitattributes', 'README.md', 'AGENTS.md', 'package.json',
+    'package-lock.json', 'tsconfig.json', 'tsconfig.api.json',
+    'tsconfig.test.json', 'default.project.json', 'roblox-ts.project.json',
+    'jest.config.cjs', '.env.example'}
 CREDENTIAL = re.compile(r'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[A-Z0-9]{16}|sk-proj-[A-Za-z0-9_-]{30,})\b|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
 
 
@@ -19,8 +22,11 @@ def run(args):
     return process.stdout
 
 
-def tracked_files():
-    return [Path(name) for name in run(['git', 'ls-files', '-z']).split('\0') if name]
+def tracked_files(working_tree=False):
+    command = ['git', 'ls-files', '-z']
+    if working_tree:
+        command += ['--cached', '--others', '--exclude-standard']
+    return sorted({Path(name) for name in run(command).split('\0') if name and (ROOT / name).exists()})
 
 
 def allowed(path):
@@ -28,9 +34,11 @@ def allowed(path):
     if path.as_posix() in ROOT_FILES:
         return True
     if parts[0] in ('src', 'tests', 'plugins'):
-        return path.suffix in ('.luau', '.txt')
+        return path.suffix in ('.luau', '.lua', '.ts', '.tsx', '.txt') or path.name.endswith('.meta.json')
+    if parts[0] == 'backend':
+        return path.suffix in ('.ts', '.tsx', '.css')
     if parts[0] == 'tools':
-        return path.suffix == '.luau' or path.as_posix() in ('tools/ci_checks.py', 'tools/install_luau.py', 'tools/luau-release.json', 'tools/package_terrain_plugin.py')
+        return path.suffix == '.luau' or path.as_posix() in ('tools/ci_checks.py', 'tools/install_luau.py', 'tools/luau-release.json', 'tools/package_terrain_plugin.py', 'tools/map_slicer.py', 'tools/generate_heightmap_samples.py', 'tools/heightmaps-requirements.txt')
     if parts[:2] == ('docs', 'engineering'):
         return path.suffix in ('.md', '.json')
     if parts[:2] == ('docs', 'media'):
@@ -73,7 +81,7 @@ def compile_luau(directory, files):
     compiler = directory / 'luau-compile'
     if not compiler.is_file():
         raise RuntimeError(f'Missing compiler: {compiler}. Run tools/install_luau.py first.')
-    sources = [path for path in files if path.suffix == '.luau']
+    sources = [path for path in files if path.suffix in ('.luau', '.lua')]
     for path in sources:
         run([str(compiler), '--null', str(path)])
     print(f'Luau syntax passed: {len(sources)} files. This does not perform Roblox type or engine analysis.')
@@ -108,8 +116,9 @@ return results''')
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--luau-dir', type=Path, required=True)
+    parser.add_argument('--working-tree', action='store_true', help='Include new nonignored source files before committing')
     args = parser.parse_args()
-    files = tracked_files()
+    files = tracked_files(args.working_tree)
     audit_repository(files)
     compile_luau(args.luau_dir.resolve(), files)
     cordge_policy(args.luau_dir.resolve())

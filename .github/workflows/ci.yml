@@ -2,7 +2,7 @@ name: Portable source checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, "fix/**"]
   pull_request:
   workflow_dispatch:
 
@@ -20,3 +20,21 @@ jobs:
         run: python3 tools/install_luau.py
       - name: Check repository, compile Luau, and run shared policy cases
         run: python3 tools/ci_checks.py --luau-dir .tooling/luau-0.741
+
+  integration-builds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check Node and Roblox TypeScript
+        run: npm run typecheck
+      - name: Exercise API authentication and gameplay policies
+        run: npm test
+      - name: Compile Roblox TypeScript
+        run: npm run build:roblox

@@ -50,7 +50,7 @@ and pause the reveal. The existing queue deadlines and per-session duplicate
 suppression still apply. Reduced motion preserves the lifecycle with immediate
 alpha changes. A reveal is presentation; it awards no discovery, XP or access.
 
-The [runtime binder](../../src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau)
+The [runtime binder](../../src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.client.luau)
 requests Intake from the existing server-owned `ENGINEERING_FIRST_READ` and
 `INTAKE_WORKS` phases. It does not reveal Intake for cave wake, the held choice
 or the rejection cascade. Existing server title cues select the Sky City and

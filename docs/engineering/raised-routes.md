@@ -39,15 +39,15 @@ lower tiers are not regenerated or used as new terrain slabs.
 
 ## Runtime integration
 
-[RouteProgressService](../../src/ServerScriptService/OrdovicOpening/RouteProgressService.luau)
+[RouteProgressService](https://github.com/DanielBarletta81/tethys_roblox/blob/25162ac/src/ServerScriptService/OrdovicOpening/RouteProgressService.luau)
 samples physical dry arrivals. The separate
-[RaisedRouteAdapter](../../src/ServerScriptService/WildboundServer/Services/RaisedRouteAdapter.luau)
+[RaisedRouteAdapter](https://github.com/DanielBarletta81/tethys_roblox/blob/25162ac/src/ServerScriptService/WildboundServer/Services/RaisedRouteAdapter.luau)
 validates each fixed marker through the existing Wildbound RuntimeService and
 TitleService. It does not introduce another knowledge, save or respawn owner.
 Earned route checkpoints are revalidated against actual dry, stable geometry
 by the existing opening controller, after the existing Rest return gets priority.
 
-[MaintenanceService](../../src/ServerScriptService/OrdovicOpening/MaintenanceService.luau)
+[MaintenanceService](https://github.com/DanielBarletta81/tethys_roblox/blob/25162ac/src/ServerScriptService/OrdovicOpening/MaintenanceService.luau)
 requires a living character, a server-timed hold, range and line of sight.
 Leaving, dying or releasing early cancels. CLEAR hides the actual ordinary
 screen debris once and changes the authored bypass-current speed. This is a

@@ -10,8 +10,6 @@
 !/tools/
 !/docs/
 !/.github/
-!/.vite/
-.gitignore
 node_modules/
 dist/
 .env
@@ -46,3 +44,23 @@ dist/
 **/*.pdf
 **/*.pages
 **/*~
+
+# Reproducible integration configuration and source, without generated output.
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/tsconfig.api.json
+!/tsconfig.test.json
+!/default.project.json
+!/roblox-ts.project.json
+!/jest.config.cjs
+!/backend/
+!/.env.example
+out/
+include/
+coverage/
+**/*.tsbuildinfo
+
+!/tools/map_slicer.py
+!/tools/generate_heightmap_samples.py
+!/tools/heightmaps-requirements.txt

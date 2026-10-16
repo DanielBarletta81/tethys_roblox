@@ -41,8 +41,8 @@ The existing Wildbound bootstrap starts the service. Existing Ordovic Controller
 
 Apply the two adjacent `.integration.txt` recipes to the named existing bootstrap/camp owners. They are patches, not additional Scripts or a combined installer:
 
-- [Wildbound bootstrap](../../src/ServerScriptService/DeathExperience/WildboundBootstrap.server.luau.integration.txt)
-- [Existing camp owner](../../src/ServerScriptService/DeathExperience/AlphaGameplayController.server.luau.integration.txt)
+- [Wildbound bootstrap](https://github.com/DanielBarletta81/tethys_roblox/blob/25162ac/src/ServerScriptService/DeathExperience/WildboundBootstrap.server.luau.integration.txt)
+- [Existing camp owner](https://github.com/DanielBarletta81/tethys_roblox/blob/25162ac/src/ServerScriptService/DeathExperience/AlphaGameplayController.server.luau.integration.txt)
 
 ## Rest adapter
 

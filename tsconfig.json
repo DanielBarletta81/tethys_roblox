@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "jsx": "react",
+    "jsxFactory": "Roact.createElement",
+    "jsxFragmentFactory": "Roact.createFragment",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noLib": true,
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "outDir": "out",
+    "strict": true,
+    "target": "ESNext",
+    "typeRoots": [
+      "node_modules/@rbxts"
+    ],
+    "types": [
+      "types",
+      "compiler-types"
+    ],
+    "skipLibCheck": true,
+    "moduleDetection": "force"
+  },
+  "include": [
+    "src/server/**/*.ts",
+    "src/client/**/*.ts",
+    "src/client/**/*.tsx",
+    "src/shared/**/*.ts"
+  ],
+  "rbxts": {
+    "rojo": "default.project.json"
+  }
+}

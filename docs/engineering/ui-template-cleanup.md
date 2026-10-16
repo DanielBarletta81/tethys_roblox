@@ -9,7 +9,7 @@ could not keep them out of the authoring viewport or early loading frames.
 clears example text and quantities from the existing template and hides
 unbound controls. It preserves all instances, layout and imagery, and refuses
 to reset a bound HUD. The saved ScreenGui is disabled. The
-[runtime binder](../../src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.luau)
+[runtime binder](../../src/StarterPlayer/StarterPlayerScripts/WildboundUIRuntimeBinder.client.luau)
 reveals it after template preparation, profile selection, controller creation
 and layout. Existing owners still supply vitals, inventory, route context,
 native prompts, titles and speech.

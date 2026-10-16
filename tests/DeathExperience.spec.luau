@@ -1,5 +1,5 @@
 local modules = if game then game.ServerScriptService.DeathExperience else {
-	Ledger = "../src/ServerScriptService/DeathExperience/Ledger", Policy = "../src/ServerScriptService/DeathExperience/Policy",
+	Ledger = "./fixtures/DeathExperience/Ledger", Policy = "./fixtures/DeathExperience/Policy",
 }
 local Ledger, Policy = require(modules.Ledger), require(modules.Policy)
 local results = {}

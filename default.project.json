@@ -1,0 +1,110 @@
+{
+  "name": "WorldOfTethys",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "TethysSystems": {
+        "$className": "Folder",
+        "$attributes": {
+          "AquaponicsEnabled": false,
+          "JusticeEnabled": false
+        },
+        "Events": {
+          "$className": "Folder",
+          "TerminalAction": {
+            "$className": "RemoteEvent"
+          },
+          "FetchTerminalData": {
+            "$className": "RemoteFunction"
+          },
+          "UpdateCityEcology": {
+            "$className": "RemoteEvent"
+          },
+          "ExecutionUI": {
+            "$className": "RemoteEvent"
+          },
+          "VarekConscription": {
+            "$className": "RemoteEvent"
+          }
+        },
+        "Shared": {
+          "$path": "out/shared"
+        }
+      },
+      "rbxts_include": {
+        "$path": "include",
+        "node_modules": {
+          "$className": "Folder",
+          "@rbxts": {
+            "$path": "node_modules/@rbxts"
+          }
+        }
+      },
+      "WildboundUI": {
+        "$path": "src/ReplicatedStorage/WildboundUI",
+        "$ignoreUnknownInstances": true
+      },
+      "Tethys": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "WorldModules": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true,
+          "Scatter": {
+            "$path": "src/ReplicatedStorage/Tethys/WorldModules/Scatter",
+            "$ignoreUnknownInstances": true
+          }
+        }
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "src/ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "TethysSystems": {
+        "$path": "out/server"
+      }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$path": "src/ServerStorage",
+      "$ignoreUnknownInstances": true,
+      "TethysBackendConfig": {
+        "$className": "Configuration",
+        "$attributes": {
+          "Enabled": false,
+          "BaseUrl": "",
+          "SecretName": "TETHYS_GATEWAY_TOKEN"
+        }
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "TethysSystems": {
+          "$path": "out/client"
+        },
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts",
+        "$path": "src/StarterPlayer/StarterCharacterScripts",
+        "$ignoreUnknownInstances": true
+      }
+    },
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$ignoreUnknownInstances": true
+    },
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/ReplicatedFirst"
+    }
+  }
+}
