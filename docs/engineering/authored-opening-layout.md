@@ -56,4 +56,4 @@ The intended high-start/lower-works relationship comes from Daniel's direction. 
 
 This pass changed documentation only. It did not move Parts, alter Terrain or spawns, add tags/prompts, activate travel or run Play acceptance. Viewport captures included the existing Edit HUD preview; its displayed notices are not evidence of live discoveries or threats.
 
-Related: [regional sprint](regional-world-sprint.md), [geometry snapshot](geometry-scale.md), [water-surface design](../Ordovic-water-surface-lock.md).
+Related: [regional sprint](regional-world-sprint.md), [geometry snapshot](geometry-scale.md), [water-surface integration](raised-routes.md).

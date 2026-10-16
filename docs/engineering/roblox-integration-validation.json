@@ -28,7 +28,9 @@
     "branch": "fix/roblox-integration-20261015",
     "scope": "Curated source and engineering evidence; live Place publication excluded",
     "authorization": "User explicitly approved the complete curated source package: 118 added or updated files and 40 old-path removals, to the named public repository and branch.",
-    "repository": "DanielBarletta81/tethys_roblox"
+    "repository": "DanielBarletta81/tethys_roblox",
+    "status": "Uploaded to the approved public source branch",
+    "url": "https://github.com/DanielBarletta81/tethys_roblox/tree/fix/roblox-integration-20261015"
   },
   "privateMaterial": "Place backups, design documents, asset packs, .env files and generated dependencies are excluded.",
   "aiAssistance": "Codex corrected source/build structure, implemented validation, ran checks and prepared the curated source upload.",
@@ -39,7 +41,10 @@
   },
   "repositoryAudit": {
     "files": 261,
-    "passed": true
+    "passed": true,
+    "exportedSnapshotPassed": true,
+    "linkRegression": "Existing local-only targets rejected; targets present in curated export accepted",
+    "remoteFinding": "The first clean GitHub checkout exposed two links to an excluded design note. Both now link to the published water integration notes; the audit also requires targets to belong to the curated export."
   },
   "removedBrowserRuntime": "Browser React panels, DOM entry point, Vite, CORS and their dependencies removed at user request; native Roblox Roact UI retained."
 }

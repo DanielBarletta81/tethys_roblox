@@ -49,6 +49,7 @@ def allowed(path):
 def audit_repository(files):
     if not files:
         raise RuntimeError('No tracked files. Stage the curated project before running repository checks.')
+    published_paths = {(ROOT / path).resolve() for path in files}
     failures = []
     for path in files:
         absolute = ROOT / path
@@ -72,6 +73,8 @@ def audit_repository(files):
                 destination = (absolute.parent / target).resolve()
                 if not destination.is_relative_to(ROOT) or not destination.exists():
                     failures.append(f'{path}: unresolved relative link {target}')
+                elif destination not in published_paths:
+                    failures.append(f'{path}: relative link outside curated export {target}')
     if failures:
         raise RuntimeError('\n'.join(failures))
     print(f'Repository checks passed: {len(files)} tracked files; private files excluded; relative links resolve.')

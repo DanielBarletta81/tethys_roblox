@@ -36,4 +36,4 @@ The sampled city stair treads are 12 wide × 3 deep. Their top-to-top rises are 
 
 The Stratum R1B single-guide limit of 2,048 studs is a tool boundary, not a world-scale target. The measured ridge exceeds it; future regional coverage needs tiled guides. Do not shrink the world to fit the current plugin.
 
-This pass changed documentation only. It did not reshape Terrain, move structures, change spawns or retest traversal. Related: [tool suite](tool-suite-roadmap.md), [Ordovic water-surface lock](../Ordovic-water-surface-lock.md).
+This pass changed documentation only. It did not reshape Terrain, move structures, change spawns or retest traversal. Related: [tool suite](tool-suite-roadmap.md), [water-surface integration](raised-routes.md).
